@@ -2,6 +2,8 @@ package com.basketball.rbgt;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.basketball.rbgt.entity.Student;
+import com.basketball.rbgt.mapper.StudentMapper;
 import com.basketball.rbgt.mapper.UserMapper;
 import com.basketball.rbgt.pojo.User;
 import org.junit.jupiter.api.Test;
@@ -17,6 +19,8 @@ class RbgtApplicationTests {
 
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private StudentMapper studentMapper;
 
     @Test
     void contextLoads() {
@@ -108,6 +112,12 @@ class RbgtApplicationTests {
         wrapper.eq("name", "moon");
         User user = userMapper.selectOne(wrapper); // 查询一个数据，出现多个结果使用List或者 Map
         System.out.println(user);
+    }
+
+    @Test
+    void test3(){
+        List<Student> selectallll = studentMapper.selectallll();
+        System.out.println(selectallll.size());
     }
 
 }
