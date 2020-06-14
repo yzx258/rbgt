@@ -47,10 +47,4 @@ public class UserApi {
             }
         }
     }
-
-    @UserLoginToken
-    @GetMapping("/getMessage")
-    public Response getMessage(){
-        return new Response("你已通过验证");
-    }
 }
