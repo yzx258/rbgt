@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * 篮球服务启动类
+ * @author 俞春旺
  */
 @SpringBootApplication
 @MapperScan("com.basketball.rbgt.mapper")

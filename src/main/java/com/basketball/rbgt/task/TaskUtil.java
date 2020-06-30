@@ -1,8 +1,8 @@
 package com.basketball.rbgt.task;
 
+import com.basketball.rbgt.util.HtmlUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 /**
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 public class TaskUtil {
 
     @Autowired
-    ThreadPoolTaskExecutor threadPoolTaskExecutor;
+    private HtmlUtil htmlUtil;
 
     @Async("myTaskAsyncPool")
     public void test() {
@@ -27,16 +27,18 @@ public class TaskUtil {
             }
             System.out.println("我被异步调用了");
         }
-        //判断线程是否全部执行结束
-        while (threadPoolTaskExecutor.getActiveCount() > 0){
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        System.out.println("执行结束");
+    }
 
+
+    /**
+     * 描述：异步获取篮球赛事
+     * @param ctime
+     */
+    @Async("myTaskAsyncPool")
+    public void getBasketballTournament(String ctime)
+    {
+        // 获取篮球赛事
+        htmlUtil.allEvent(ctime);
     }
 
 }
