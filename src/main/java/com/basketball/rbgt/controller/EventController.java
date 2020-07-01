@@ -10,6 +10,7 @@ import com.basketball.rbgt.util.DateUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 2020-06-30
  */
 @Api(value = "/event",tags = "篮球赛事相关接口")
+@CrossOrigin
 @RestController
 @RequestMapping("/event")
 public class EventController {
@@ -38,6 +40,22 @@ public class EventController {
     public Response todayEvent(){
         QueryWrapper<Event> queryWrapper = new QueryWrapper<Event>();
         queryWrapper.eq("start_time",DateUtil.getDate(0));
+        return new Response(eventMapper.selectList(queryWrapper));
+    }
+
+    @ApiOperation(value = "查询 - 明天赛事信息")
+    @GetMapping("/tomorrow/event")
+    public Response tomorrowEvent(){
+        QueryWrapper<Event> queryWrapper = new QueryWrapper<Event>();
+        queryWrapper.eq("start_time",DateUtil.getDate(1));
+        return new Response(eventMapper.selectList(queryWrapper));
+    }
+
+    @ApiOperation(value = "查询 - 前天赛事信息")
+    @GetMapping("/yesterday/event")
+    public Response yesterdayEvent(){
+        QueryWrapper<Event> queryWrapper = new QueryWrapper<Event>();
+        queryWrapper.eq("start_time",DateUtil.getDate(-1));
         return new Response(eventMapper.selectList(queryWrapper));
     }
 

@@ -38,7 +38,18 @@ public class TaskUtil {
     public void getBasketballTournament(String ctime)
     {
         // 获取篮球赛事
-        htmlUtil.allEvent(ctime);
+        htmlUtil.allEvent(ctime,true);
+    }
+
+    /**
+     * 描述：异步获取篮球赛事
+     * @param ctime
+     */
+    @Async("myTaskAsyncPool")
+    public void getEndBasketballTournament(String ctime)
+    {
+        // 获取篮球赛事
+        htmlUtil.allEvent(ctime,false);
     }
 
 }

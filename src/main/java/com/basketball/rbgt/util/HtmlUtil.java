@@ -35,23 +35,42 @@ public class HtmlUtil {
      * 描述：获取全部赛事信息
      * @param ctime
      */
-    public void allEvent(String ctime){
+    public void allEvent(String ctime,Boolean flag){
         // 爬取的页面信息
         HtmlPage htmlPage = getHtmlPage(ctime);
         // 解析出来的数据对象
-        List<Event> event = getEvent(htmlPage,ctime);
-        // 遍历保存数据库
-        for(Event e : event){
-            QueryWrapper<Event> queryWrapper = new QueryWrapper<Event>();
-            queryWrapper.eq("name",e.getName()).eq("start_time",ctime);
-            List<Event> events = eventMapper.selectList(queryWrapper);
-            if(events.size() == 0)
-            {
-                eventMapper.insert(e);
-            }else{
-                System.out.println("我是查询出来的对象："+JSON.toJSONString(events));
+        List<Event> event = getEvent(htmlPage,ctime,flag);
+        if(flag){
+            // 遍历保存数据库
+            for(Event e : event){
+                QueryWrapper<Event> queryWrapper = new QueryWrapper<Event>();
+                queryWrapper.eq("name",e.getName()).eq("start_time",ctime);
+                List<Event> events = eventMapper.selectList(queryWrapper);
+                if(events.size() == 0)
+                {
+                    eventMapper.insert(e);
+                }else{
+                    System.out.println("我是查询出来的对象："+JSON.toJSONString(events));
+                }
+            }
+        }else{
+            for(Event e : event) {
+                QueryWrapper<Event> queryWrapper = new QueryWrapper<Event>();
+                queryWrapper.eq("name",e.getName()).eq("start_time",ctime);
+                List<Event> events = eventMapper.selectList(queryWrapper);
+                if(events.size() > 0)
+                {
+                    events.get(0).setPeriodOne(e.getPeriodOne());
+                    events.get(0).setPeriodTow(e.getPeriodTow());
+                    events.get(0).setPeriodThree(e.getPeriodThree());
+                    events.get(0).setPeriodFour(e.getPeriodFour());
+                    eventMapper.updateById(events.get(0));
+                }else{
+                    System.out.println("我是查询出来的对象："+JSON.toJSONString(events));
+                }
             }
         }
+
     }
 
     /**
@@ -60,7 +79,7 @@ public class HtmlUtil {
      * @param ctime
      * @return
      */
-    public List<Event> getEvent(HtmlPage htmlPage,String ctime)
+    public List<Event> getEvent(HtmlPage htmlPage,String ctime,Boolean flag)
     {
         // 定义对象
         List<Event> list = new ArrayList<>();
@@ -99,25 +118,25 @@ public class HtmlUtil {
             dayBS = arr[0];
             try {
                 // 判断是否为单日比赛
-                if (!(time.contains("完")) && day.equals(dayBS)) {
+                if (!(time.contains("完")) && day.equals(dayBS) && flag) {
                     // 获取比赛开始时间
                     dayBSS = arr[1];
+                    ZD = document.getElementById("live")
+                            .getElementsByTag("table").get(i)
+                            .getElementsByTag("tr").get(1)
+                            .getElementsByTag("td").get(1).text();
+                    KD = document.getElementById("live")
+                            .getElementsByTag("table").get(i)
+                            .getElementsByTag("tr").get(2)
+                            .getElementsByTag("td").get(0).text();
+                    Event e = new Event();
                     // 判断比赛是否在规定区间内
                     if (DateUtil.isEffectiveDate(
                             new SimpleDateFormat(format).parse(dayBSS),
                             new SimpleDateFormat(format).parse("10:00"),
                             new SimpleDateFormat(format).parse("20:30"))) {
                         //获取主客队名称
-                        ZD = document.getElementById("live")
-                                .getElementsByTag("table").get(i)
-                                .getElementsByTag("tr").get(1)
-                                .getElementsByTag("td").get(1).text();
-                        KD = document.getElementById("live")
-                                .getElementsByTag("table").get(i)
-                                .getElementsByTag("tr").get(2)
-                                .getElementsByTag("td").get(0).text();
                         //将主客队名称繁体改为简体
-                        Event e = new Event();
                         e.setName(ZD.substring(0, ZD.indexOf("["))+"VS"+KD.substring(0, KD.indexOf("[")));
                         e.setType(getType(BSTYPE));
                         e.setTypeName(BSTYPE);
@@ -129,6 +148,50 @@ public class HtmlUtil {
                         e.setCreateTime(new Date());
                         list.add(e);
                     }
+                }
+
+                if (time.contains("完") && day.equals(dayBS) && !flag) {
+                    //获取主客队名称
+                    ZD = document.getElementById("live")
+                            .getElementsByTag("table").get(i)
+                            .getElementsByTag("tr").get(1)
+                            .getElementsByTag("td").get(1).text();
+                    KD = document.getElementById("live")
+                            .getElementsByTag("table").get(i)
+                            .getElementsByTag("tr").get(2)
+                            .getElementsByTag("td").get(0).text();
+                    Event e = new Event();
+                    e.setName(ZD.substring(0, ZD.indexOf("["))+"VS"+KD.substring(0, KD.indexOf("[")));
+                    e.setUpdateTime(new Date());
+                    e.setPeriodOne(document.getElementById("live")
+                            .getElementsByTag("table").get(i)
+                            .getElementsByTag("tr").get(1)
+                            .getElementsByTag("td").get(2).text()+":"+document.getElementById("live")
+                            .getElementsByTag("table").get(i)
+                            .getElementsByTag("tr").get(2)
+                            .getElementsByTag("td").get(1).text());
+                    e.setPeriodTow(document.getElementById("live")
+                            .getElementsByTag("table").get(i)
+                            .getElementsByTag("tr").get(1)
+                            .getElementsByTag("td").get(3).text()+":"+document.getElementById("live")
+                            .getElementsByTag("table").get(i)
+                            .getElementsByTag("tr").get(2)
+                            .getElementsByTag("td").get(2).text());
+                    e.setPeriodThree(document.getElementById("live")
+                            .getElementsByTag("table").get(i)
+                            .getElementsByTag("tr").get(1)
+                            .getElementsByTag("td").get(4).text()+":"+document.getElementById("live")
+                            .getElementsByTag("table").get(i)
+                            .getElementsByTag("tr").get(2)
+                            .getElementsByTag("td").get(3).text());
+                    e.setPeriodFour(document.getElementById("live")
+                            .getElementsByTag("table").get(i)
+                            .getElementsByTag("tr").get(1)
+                            .getElementsByTag("td").get(5).text()+":"+document.getElementById("live")
+                            .getElementsByTag("table").get(i)
+                            .getElementsByTag("tr").get(2)
+                            .getElementsByTag("td").get(4).text());
+                    list.add(e);
                 }
                 i = i + 1;
             } catch (Exception e) {

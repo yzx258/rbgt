@@ -22,9 +22,19 @@ public class TimingTask {
      * 每天13点40获取比赛的结果，并入库
      */
     @Scheduled(cron = "* * 0-4 * * ? ")
-    private void TaskTow() {
+    private void TaskOne() {
         System.out.println("异步线程开始");
         taskService.getBasketballTournament(DateUtil.getDate(0));
+        System.out.println("异步线程结束");
+    }
+
+    /**
+     * 每天13点40获取比赛的结果，并入库
+     */
+    @Scheduled(cron = "* * 0-2 * * ? ")
+    private void TaskTow() {
+        System.out.println("异步线程开始");
+        taskService.getEndBasketballTournament(DateUtil.getDate(0));
         System.out.println("异步线程结束");
     }
 }
