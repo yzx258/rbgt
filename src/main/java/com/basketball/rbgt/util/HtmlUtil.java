@@ -42,36 +42,63 @@ public class HtmlUtil {
         List<Event> event = getEvent(htmlPage,ctime,flag);
         if(flag){
             // 遍历保存数据库
-            for(Event e : event){
-                QueryWrapper<Event> queryWrapper = new QueryWrapper<Event>();
-                queryWrapper.eq("name",e.getName()).eq("start_time",ctime);
-                List<Event> events = eventMapper.selectList(queryWrapper);
-                if(events.size() == 0)
-                {
-                    eventMapper.insert(e);
-                }else{
-                    System.out.println("我是查询出来的对象："+JSON.toJSONString(events));
-                }
-            }
+            insertEvent(event,ctime);
         }else{
-            for(Event e : event) {
-                QueryWrapper<Event> queryWrapper = new QueryWrapper<Event>();
-                queryWrapper.eq("name",e.getName()).eq("start_time",ctime);
-                List<Event> events = eventMapper.selectList(queryWrapper);
-                if(events.size() > 0)
-                {
-                    events.get(0).setPeriodOne(e.getPeriodOne());
-                    events.get(0).setPeriodTow(e.getPeriodTow());
-                    events.get(0).setPeriodThree(e.getPeriodThree());
-                    events.get(0).setPeriodFour(e.getPeriodFour());
-                    events.get(0).setStatus(1);
-                    eventMapper.updateById(events.get(0));
-                }else{
-                    System.out.println("我是查询出来的对象："+JSON.toJSONString(events));
-                }
+            // 批量插入数据
+            updateEvent(event,ctime);
+        }
+        // 判断是否是当前时间
+        if(ctime.equals(new SimpleDateFormat("yyyy-MM-dd").format(new Date())) && flag){
+            HtmlPage hps = getHtmlPage(DateUtil.getDate(1));
+            List<Event> el = getTomorrowEvent(hps,DateUtil.getDate(0),flag);
+            // 批量插入数据
+            insertEvent(el,ctime);
+        }
+    }
+
+    /**
+     * 描述：批量插入数据
+     * @param list
+     * @param ctime
+     */
+    public void insertEvent(List<Event> list,String ctime)
+    {
+        for(Event e : list) {
+            QueryWrapper<Event> queryWrapper = new QueryWrapper<Event>();
+            queryWrapper.eq("name",e.getName()).eq("start_time",ctime);
+            List<Event> es = eventMapper.selectList(queryWrapper);
+            if(es.size() == 0)
+            {
+                eventMapper.insert(e);
+            }else{
+                System.out.println("我是查询出来的对象："+JSON.toJSONString(es));
             }
         }
+    }
 
+    /**
+     * 描述：批量插入数据
+     * @param list
+     * @param ctime
+     */
+    public void updateEvent(List<Event> list,String ctime)
+    {
+        for(Event e : list){
+            QueryWrapper<Event> queryWrapper = new QueryWrapper<Event>();
+            queryWrapper.eq("name",e.getName()).eq("start_time",ctime);
+            List<Event> es = eventMapper.selectList(queryWrapper);
+            if(es.size() > 0)
+            {
+                es.get(0).setPeriodOne(e.getPeriodOne());
+                es.get(0).setPeriodTow(e.getPeriodTow());
+                es.get(0).setPeriodThree(e.getPeriodThree());
+                es.get(0).setPeriodFour(e.getPeriodFour());
+                es.get(0).setStatus(1);
+                eventMapper.updateById(es.get(0));
+            }else{
+                System.out.println("我是查询出来的对象："+JSON.toJSONString(es));
+            }
+        }
     }
 
     /**
@@ -89,7 +116,6 @@ public class HtmlUtil {
         //获取html文档
         Document document = Jsoup.parse(pageXml);
         int len = document.getElementById("live").getElementsByTag("table").size();
-        Calendar now = Calendar.getInstance();
         // 获取当日天数+1,获取明天比赛信息
         String day = ctime.split("-")[2];
         int day_len = day.length();
@@ -134,8 +160,8 @@ public class HtmlUtil {
                     // 判断比赛是否在规定区间内
                     if (DateUtil.isEffectiveDate(
                             new SimpleDateFormat(format).parse(dayBSS),
-                            new SimpleDateFormat(format).parse("10:00"),
-                            new SimpleDateFormat(format).parse("20:30"))) {
+                            new SimpleDateFormat(format).parse("06:00"),
+                            new SimpleDateFormat(format).parse("23:59"))) {
                         //获取主客队名称
                         //将主客队名称繁体改为简体
                         e.setName(ZD.substring(0, ZD.indexOf("["))+"VS"+KD.substring(0, KD.indexOf("[")));
@@ -203,6 +229,92 @@ public class HtmlUtil {
         }
         return list;
     }
+
+    /**
+     * 描述：解析赛事 + 获取赛事对象
+     * @param htmlPage
+     * @param ctime
+     * @return
+     */
+    public List<Event> getTomorrowEvent(HtmlPage htmlPage,String ctime,Boolean flag)
+    {
+        // 定义对象
+        List<Event> list = new ArrayList<>();
+        //直接将加载完成的页面转换成xml格式的字符串
+        String pageXml = htmlPage.asXml();
+        //获取html文档
+        Document document = Jsoup.parse(pageXml);
+        int len = document.getElementById("live").getElementsByTag("table").size();
+        // 获取当日天数+1,获取明天比赛信息
+        String day = DateUtil.getDate(0).split("-")[2];
+        int day_len = day.length();
+        if(1 == day_len)
+        {
+            day = "0"+day;
+        }
+        String LX, ZD, time, dayBS, dayBSS, KD = "", format = "HH:mm",BSTYPE = "";
+        String[] arr = new String[2];
+        for (int i = 0; i < len; i++) {
+            LX = document.getElementById("live").getElementsByTag("table")
+                    .get(i).getElementsByTag("tr").get(0).text();
+            if (LX.contains("N") || LX.contains("B") || LX.contains("E")
+                    || LX.contains("篮") || LX.contains("甲") || LX.contains("甲")
+                    || LX.contains("星") || LX.contains("乙") || LX.contains("女")
+                    || LX.contains("友") || LX.contains("东") || LX.contains("西")
+                    || LX.contains("联") || LX.contains("杯") || LX.contains("超"))
+            {
+                BSTYPE = LX;
+                i = i + 1;
+            }
+            time = document.getElementById("live").getElementsByTag("table")
+                    .get(i).getElementsByTag("tr").get(0)
+                    .getElementsByTag("tr").get(0).getElementsByTag("td")
+                    .get(0).text();
+            arr = time.split("日");
+            dayBS = arr[0];
+            try {
+                // 判断是否为单日比赛
+                if (!(time.contains("完")) && day.equals(dayBS) && flag) {
+                    // 获取比赛开始时间
+                    dayBSS = arr[1];
+                    ZD = document.getElementById("live")
+                            .getElementsByTag("table").get(i)
+                            .getElementsByTag("tr").get(1)
+                            .getElementsByTag("td").get(1).text();
+                    KD = document.getElementById("live")
+                            .getElementsByTag("table").get(i)
+                            .getElementsByTag("tr").get(2)
+                            .getElementsByTag("td").get(0).text();
+                    System.out.println(BSTYPE +" "+ ZD +"VS"+KD);
+                    Event e = new Event();
+                    // 判断比赛是否在规定区间内
+                    if (DateUtil.isEffectiveDate(
+                            new SimpleDateFormat(format).parse(dayBSS),
+                            new SimpleDateFormat(format).parse("08:00"),
+                            new SimpleDateFormat(format).parse("23:59"))) {
+                        //获取主客队名称
+                        e.setName(ZD.substring(0, ZD.indexOf("["))+"VS"+KD.substring(0, KD.indexOf("[")));
+                        e.setType(getType(BSTYPE));
+                        e.setTypeName(BSTYPE);
+                        e.setEventTime(time);
+                        e.setStartTime(ctime);
+                        e.setQuizResults(RandomNumberUtil.getRandomNumber());
+                        e.setDeleted(0);
+                        e.setVersion("1");
+                        e.setCreateTime(new Date());
+                        list.add(e);
+                    }
+                }
+                i = i + 1;
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                System.out.println(e);
+                break;
+            }
+        }
+        return list;
+    }
+
     /**
      * 描述：获取对象
      * @return
