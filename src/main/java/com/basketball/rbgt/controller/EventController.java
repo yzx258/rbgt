@@ -9,12 +9,9 @@ import com.basketball.rbgt.task.TaskUtil;
 import com.basketball.rbgt.util.DateUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * <p>
@@ -34,6 +31,15 @@ public class EventController {
     private TaskUtil taskService;
     @Autowired
     private EventMapper eventMapper;
+
+    @ApiOperation(value = "查询 - 根据日期查询赛事信息")
+    @GetMapping("get/date/event/{date}")
+    public Response todayEvent(@ApiParam(value = "date") @PathVariable String date){
+        System.out.println("date - > "+date);
+        QueryWrapper<Event> queryWrapper = new QueryWrapper<Event>();
+        queryWrapper.eq("start_time",date);
+        return new Response(eventMapper.selectList(queryWrapper));
+    }
 
     @ApiOperation(value = "查询 - 当天赛事信息")
     @GetMapping("/today/event")
@@ -59,31 +65,68 @@ public class EventController {
         return new Response(eventMapper.selectList(queryWrapper));
     }
 
-    @ApiOperation(value = "查询 - 手动查询当天赛事")
+    @ApiOperation(value = "新增 - 手动查询当天赛事")
     @GetMapping("/today")
     public String today(){
         System.out.println("异步线程开始");
         taskService.getBasketballTournament(DateUtil.getDate(0));
         System.out.println("异步线程结束");
-        return "hello word";
+        return "success";
     }
 
-    @ApiOperation(value = "查询 - 手动查询明天赛事")
+    @ApiOperation(value = "新增 - 手动查询明天赛事")
     @GetMapping("/tomorrow")
     public String tomorrow(){
         System.out.println("异步线程开始");
         taskService.getBasketballTournament(DateUtil.getDate(1));
         System.out.println("异步线程结束");
-        return "hello word";
+        return "success";
     }
 
-    @ApiOperation(value = "查询 - 手动查询昨天赛事")
+    @ApiOperation(value = "新增 - 手动查询昨天赛事")
     @GetMapping("/yesterday")
     public String yesterday(){
         System.out.println("异步线程开始");
         taskService.getBasketballTournament(DateUtil.getDate(-1));
         System.out.println("异步线程结束");
-        return "hello word";
+        return "success";
+    }
+
+
+    @ApiOperation(value = "编辑 - 手动查询当天结束赛事")
+    @GetMapping("/today/end")
+    public String todayEnd(){
+        System.out.println("异步线程开始");
+        taskService.getEndBasketballTournament(DateUtil.getDate(0));
+        System.out.println("异步线程结束");
+        return "success";
+    }
+
+    @ApiOperation(value = "编辑 - 手动查询昨天结束赛事")
+    @GetMapping("/yesterday/end")
+    public String yesterdayEnd(){
+        System.out.println("异步线程开始");
+        taskService.getEndBasketballTournament(DateUtil.getDate(-1));
+        System.out.println("异步线程结束");
+        return "success";
+    }
+
+    @ApiOperation(value = "编辑 - 手动更新今天天结束赛事竞猜结果")
+    @GetMapping("/today/quiz")
+    public String todayEndQuiz(){
+        System.out.println("异步线程开始");
+        taskService.UpdateQuizResult(DateUtil.getDate(0));
+        System.out.println("异步线程结束");
+        return "success";
+    }
+
+    @ApiOperation(value = "编辑 - 手动更新昨天结束赛事竞猜结果")
+    @GetMapping("/yesterday/end/quiz")
+    public String yesterdayEndQuiz(){
+        System.out.println("异步线程开始");
+        taskService.UpdateQuizResult(DateUtil.getDate(-1));
+        System.out.println("异步线程结束");
+        return "success";
     }
 
 }

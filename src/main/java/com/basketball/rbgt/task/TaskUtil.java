@@ -1,9 +1,15 @@
 package com.basketball.rbgt.task;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.basketball.rbgt.mapper.EventMapper;
+import com.basketball.rbgt.pojo.Event;
 import com.basketball.rbgt.util.HtmlUtil;
+import com.basketball.rbgt.util.QuizResultsUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @program: rbgt
@@ -16,6 +22,10 @@ public class TaskUtil {
 
     @Autowired
     private HtmlUtil htmlUtil;
+    @Autowired
+    private QuizResultsUtil quizResultsUtil;
+    @Autowired
+    private EventMapper eventMapper;
 
     @Async("myTaskAsyncPool")
     public void test() {
@@ -50,6 +60,23 @@ public class TaskUtil {
     {
         // 获取篮球赛事
         htmlUtil.allEvent(ctime,false);
+    }
+
+    /**
+     * 描述：异步获取篮球赛事
+     * @param ctime
+     */
+    @Async("myTaskAsyncPool")
+    public void UpdateQuizResult(String ctime)
+    {
+        QueryWrapper<Event> queryWrapper = new QueryWrapper<Event>();
+        queryWrapper.eq("start_time",ctime).eq("status",1);
+        List<Event> events = eventMapper.selectList(queryWrapper);
+        for (Event e : events){
+            e.setResults(quizResultsUtil.getQuizResultsUtil(e));
+            e.setStatus(2);
+            eventMapper.updateById(e);
+        }
     }
 
 }

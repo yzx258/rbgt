@@ -57,6 +57,11 @@ public class Event implements Serializable {
     private String results;
 
     /**
+     * 赛事状态
+     */
+    private Integer status;
+
+    /**
      * 赛事第一节
      */
     @TableField("periodOne")

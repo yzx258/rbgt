@@ -64,6 +64,7 @@ public class HtmlUtil {
                     events.get(0).setPeriodTow(e.getPeriodTow());
                     events.get(0).setPeriodThree(e.getPeriodThree());
                     events.get(0).setPeriodFour(e.getPeriodFour());
+                    events.get(0).setStatus(1);
                     eventMapper.updateById(events.get(0));
                 }else{
                     System.out.println("我是查询出来的对象："+JSON.toJSONString(events));

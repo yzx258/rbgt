@@ -19,22 +19,32 @@ public class TimingTask {
     private TaskUtil taskService;
 
     /**
-     * 每天13点40获取比赛的结果，并入库
+     * 每天4小时获取比赛，并入库
      */
     @Scheduled(cron = "* * 0-4 * * ? ")
-    private void TaskOne() {
+    private void getStartGame() {
         System.out.println("异步线程开始");
         taskService.getBasketballTournament(DateUtil.getDate(0));
         System.out.println("异步线程结束");
     }
 
     /**
-     * 每天13点40获取比赛的结果，并入库
+     * 每天2小时获取比赛的结果，并入库
      */
     @Scheduled(cron = "* * 0-2 * * ? ")
-    private void TaskTow() {
+    private void getEndGame() {
         System.out.println("异步线程开始");
         taskService.getEndBasketballTournament(DateUtil.getDate(0));
+        System.out.println("异步线程结束");
+    }
+
+    /**
+     * 每天2小时获取比赛的结果，并入库
+     */
+    @Scheduled(cron = "* * 0-2 * * ? ")
+    private void UpdateQuizResult() {
+        System.out.println("异步线程开始");
+        taskService.UpdateQuizResult(DateUtil.getDate(0));
         System.out.println("异步线程结束");
     }
 }
