@@ -344,10 +344,10 @@ public class HtmlUtil {
      */
     public String getEventName(String zd,String kd)
     {
-        if(KL.contains(zd)){
+        if(zd.contains(KL)){
             zd = zd.substring(0, zd.indexOf(KL));
         }
-        if(KL.contains(kd)){
+        if(kd.contains(KL)){
             kd = kd.substring(0, kd.indexOf(KL));
         }
         return zd+"VS"+kd;
