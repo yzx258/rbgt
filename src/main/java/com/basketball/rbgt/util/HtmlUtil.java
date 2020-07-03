@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -30,6 +29,20 @@ public class HtmlUtil {
 
     @Autowired
     private EventMapper eventMapper;
+
+    /**
+     * 描述：比赛队伍名过滤条件
+     */
+    private static final String KL = "[";
+
+    /**
+     * 描述：比赛类型
+     */
+    private static final String CBA = "CBA";
+    private static final String NBA = "NBA";
+    private static final String W_NBA = "WNBA";
+    private static final String YL = "以篮";
+    private static final String NXL = "以纽西联篮";
 
     /**
      * 描述：获取全部赛事信息
@@ -48,6 +61,7 @@ public class HtmlUtil {
             updateEvent(event,ctime);
         }
         // 判断是否是当前时间
+        System.out.println(ctime.equals(new SimpleDateFormat("yyyy-MM-dd").format(new Date())+""));
         if(ctime.equals(new SimpleDateFormat("yyyy-MM-dd").format(new Date())) && flag){
             HtmlPage hps = getHtmlPage(DateUtil.getDate(1));
             List<Event> el = getTomorrowEvent(hps,DateUtil.getDate(0),flag);
@@ -164,7 +178,7 @@ public class HtmlUtil {
                             new SimpleDateFormat(format).parse("23:59"))) {
                         //获取主客队名称
                         //将主客队名称繁体改为简体
-                        e.setName(ZD.substring(0, ZD.indexOf("["))+"VS"+KD.substring(0, KD.indexOf("[")));
+                        e.setName(getEventName(ZD,KD));
                         e.setType(getType(BSTYPE));
                         e.setTypeName(BSTYPE);
                         e.setEventTime(time);
@@ -188,7 +202,7 @@ public class HtmlUtil {
                             .getElementsByTag("tr").get(2)
                             .getElementsByTag("td").get(0).text();
                     Event e = new Event();
-                    e.setName(ZD.substring(0, ZD.indexOf("["))+"VS"+KD.substring(0, KD.indexOf("[")));
+                    e.setName(getEventName(ZD,KD));
                     e.setUpdateTime(new Date());
                     e.setPeriodOne(document.getElementById("live")
                             .getElementsByTag("table").get(i)
@@ -270,11 +284,14 @@ public class HtmlUtil {
                     .get(i).getElementsByTag("tr").get(0)
                     .getElementsByTag("tr").get(0).getElementsByTag("td")
                     .get(0).text();
+            System.out.println(BSTYPE + " " +time);
             arr = time.split("日");
             dayBS = arr[0];
             try {
                 // 判断是否为单日比赛
-                if (!(time.contains("完")) && day.equals(dayBS) && flag) {
+                System.out.println(day.equals(dayBS));
+                System.out.println(flag);
+                if (day.equals(dayBS) && flag) {
                     // 获取比赛开始时间
                     dayBSS = arr[1];
                     ZD = document.getElementById("live")
@@ -293,7 +310,7 @@ public class HtmlUtil {
                             new SimpleDateFormat(format).parse("08:00"),
                             new SimpleDateFormat(format).parse("23:59"))) {
                         //获取主客队名称
-                        e.setName(ZD.substring(0, ZD.indexOf("["))+"VS"+KD.substring(0, KD.indexOf("[")));
+                        e.setName(getEventName(ZD,KD));
                         e.setType(getType(BSTYPE));
                         e.setTypeName(BSTYPE);
                         e.setEventTime(time);
@@ -313,6 +330,23 @@ public class HtmlUtil {
             }
         }
         return list;
+    }
+
+    /**
+     * 描述：获取队伍名称
+     * @param zd
+     * @param kd
+     * @return
+     */
+    public String getEventName(String zd,String kd)
+    {
+        if(KL.contains(zd)){
+            zd = zd.substring(0, zd.indexOf(KL));
+        }
+        if(KL.contains(kd)){
+            kd = kd.substring(0, kd.indexOf(KL));
+        }
+        return zd+"VS"+kd;
     }
 
     /**
@@ -364,16 +398,16 @@ public class HtmlUtil {
      * @param typeName
      * @return
      */
-    private static int getType(String typeName){
-        if("CBA".equals(typeName)){
+    public int getType(String typeName){
+        if(CBA.equals(typeName)){
             return 1;
-        }else if("NBA".equals(typeName)){
+        }else if(NBA.equals(typeName)){
             return 2;
-        }else if("WNBA".equals(typeName)){
+        }else if(W_NBA.equals(typeName)){
             return 3;
-        }else if(typeName.contains("以篮")){
+        }else if(typeName.contains(YL)){
             return 4;
-        }else if(typeName.contains("纽西联")){
+        }else if(typeName.contains(NXL)){
             return 5;
         }else{
             return 6;
