@@ -47,6 +47,16 @@ public class Event implements Serializable {
     private String name;
 
     /**
+     * 年份
+     */
+    private String year;
+
+    /**
+     * 月份
+     */
+    private String month;
+
+    /**
      * 竞猜结果
      */
     private String quizResults;

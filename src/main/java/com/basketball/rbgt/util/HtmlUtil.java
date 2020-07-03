@@ -187,6 +187,8 @@ public class HtmlUtil {
                         e.setDeleted(0);
                         e.setVersion("1");
                         e.setCreateTime(new Date());
+                        e.setYear(ctime.split("-")[0]);
+                        e.setMonth(ctime.split("-")[1]);
                         list.add(e);
                     }
                 }
@@ -319,6 +321,8 @@ public class HtmlUtil {
                         e.setDeleted(0);
                         e.setVersion("1");
                         e.setCreateTime(new Date());
+                        e.setYear(ctime.split("-")[0]);
+                        e.setMonth(ctime.split("-")[1]);
                         list.add(e);
                     }
                 }

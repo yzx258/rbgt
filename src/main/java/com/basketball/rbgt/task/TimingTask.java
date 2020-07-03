@@ -50,4 +50,15 @@ public class TimingTask {
         taskService.UpdateQuizResult(DateUtil.getDate(0));
         System.out.println("异步线程结束");
     }
+
+    /**
+     * 每天23小时获取历史报表，并入库
+     */
+    @Scheduled(cron = "0 0 23 * * ? ")
+    private void updateReport() {
+        System.out.println("异步线程开始");
+        System.out.println("每天2小时获取比赛竞猜结果，并入库");
+        taskService.updateReport();
+        System.out.println("异步线程结束");
+    }
 }
