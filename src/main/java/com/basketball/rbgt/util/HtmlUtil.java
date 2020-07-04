@@ -79,8 +79,6 @@ public class HtmlUtil {
         HtmlPage htmlPage = getHtmlPage(ctime);
         // 解析出来的数据对象
         List<Event> event = getAllEvent(htmlPage,ctime);
-        System.out.println(JSON.toJSONString(event));
-        // 插入数据
         // 遍历保存数据库
         insertEvent(event,ctime);
     }
@@ -330,7 +328,7 @@ public class HtmlUtil {
                         e.setType(getType(BSTYPE));
                         e.setTypeName(BSTYPE);
                         e.setEventTime(time);
-                        e.setStartTime(ctime);
+                        e.setStartTime(ctime.split("-")[0]+"-"+ctime.split("-")[1]+"-"+dayBS);
                         e.setQuizResults(RandomNumberUtil.getRandomNumber());
                         e.setDeleted(0);
                         e.setVersion("1");
