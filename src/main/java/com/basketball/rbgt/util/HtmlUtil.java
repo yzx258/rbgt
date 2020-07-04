@@ -94,7 +94,7 @@ public class HtmlUtil {
     {
         for(Event e : list) {
             QueryWrapper<Event> queryWrapper = new QueryWrapper<Event>();
-            queryWrapper.eq("name",e.getName()).eq("start_time",ctime);
+            queryWrapper.eq("name",e.getName()).eq("start_time",e.getStartTime());
             List<Event> es = eventMapper.selectList(queryWrapper);
             if(es.size() == 0)
             {
