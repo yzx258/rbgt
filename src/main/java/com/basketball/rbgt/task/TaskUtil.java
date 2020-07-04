@@ -70,6 +70,17 @@ public class TaskUtil {
     }
 
     /**
+     * 描述：异步获取单日全部篮球赛事
+     * @param ctime
+     */
+    @Async("myTaskAsyncPool")
+    public void getTodayAllBasketball(String ctime)
+    {
+        // 获取篮球赛事
+        htmlUtil.insertAllEvent(ctime);
+    }
+
+    /**
      * 描述：异步获取篮球赛事
      * @param ctime
      */

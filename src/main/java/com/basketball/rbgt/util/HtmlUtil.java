@@ -71,6 +71,23 @@ public class HtmlUtil {
     }
 
     /**
+     * 描述：获取单日全部赛事信息
+     * @param ctime
+     */
+    public void insertAllEvent(String ctime){
+        // 爬取的页面信息
+        HtmlPage htmlPage = getHtmlPage(ctime);
+        // 解析出来的数据对象
+        List<Event> event = getAllEvent(htmlPage,ctime);
+        System.out.println(JSON.toJSONString(event));
+        // 插入数据
+        // 遍历保存数据库
+        insertEvent(event,ctime);
+    }
+
+
+
+    /**
      * 描述：批量插入数据
      * @param list
      * @param ctime
@@ -252,6 +269,93 @@ public class HtmlUtil {
      * @param ctime
      * @return
      */
+    public List<Event> getAllEvent(HtmlPage htmlPage,String ctime)
+    {
+        // 定义对象
+        List<Event> list = new ArrayList<>();
+        //直接将加载完成的页面转换成xml格式的字符串
+        String pageXml = htmlPage.asXml();
+        //获取html文档
+        Document document = Jsoup.parse(pageXml);
+        int len = document.getElementById("live").getElementsByTag("table").size();
+        // 获取当日天数+1,获取明天比赛信息
+        String day = ctime.split("-")[2];
+        int day_len = day.length();
+        if(1 == day_len)
+        {
+            day = "0"+day;
+        }
+        String LX, ZD, time, dayBS, dayBSS, KD = "", format = "HH:mm",BSTYPE = "";
+        String[] arr = new String[2];
+        for (int i = 0; i < len; i++) {
+            LX = document.getElementById("live").getElementsByTag("table")
+                    .get(i).getElementsByTag("tr").get(0).text();
+            if (LX.contains("N") || LX.contains("B") || LX.contains("E")
+                    || LX.contains("篮") || LX.contains("甲") || LX.contains("甲")
+                    || LX.contains("星") || LX.contains("乙") || LX.contains("女")
+                    || LX.contains("友") || LX.contains("东") || LX.contains("西")
+                    || LX.contains("联") || LX.contains("杯") || LX.contains("超"))
+            {
+                BSTYPE = LX;
+                i = i + 1;
+            }
+            time = document.getElementById("live").getElementsByTag("table")
+                    .get(i).getElementsByTag("tr").get(0)
+                    .getElementsByTag("tr").get(0).getElementsByTag("td")
+                    .get(0).text();
+            arr = time.split("日");
+            dayBS = arr[0];
+            try {
+                // 判断是否为单日比赛
+                if (!(time.contains("完"))) {
+                    // 获取比赛开始时间
+                    dayBSS = arr[1];
+                    ZD = document.getElementById("live")
+                            .getElementsByTag("table").get(i)
+                            .getElementsByTag("tr").get(1)
+                            .getElementsByTag("td").get(1).text();
+                    KD = document.getElementById("live")
+                            .getElementsByTag("table").get(i)
+                            .getElementsByTag("tr").get(2)
+                            .getElementsByTag("td").get(0).text();
+                    Event e = new Event();
+                    // 判断比赛是否在规定区间内
+                    if (DateUtil.isEffectiveDate(
+                            new SimpleDateFormat(format).parse(dayBSS),
+                            new SimpleDateFormat(format).parse("00:01"),
+                            new SimpleDateFormat(format).parse("23:59"))) {
+                        //获取主客队名称
+                        //将主客队名称繁体改为简体
+                        e.setName(getEventName(ZD,KD));
+                        e.setType(getType(BSTYPE));
+                        e.setTypeName(BSTYPE);
+                        e.setEventTime(time);
+                        e.setStartTime(ctime);
+                        e.setQuizResults(RandomNumberUtil.getRandomNumber());
+                        e.setDeleted(0);
+                        e.setVersion("1");
+                        e.setCreateTime(new Date());
+                        e.setYear(ctime.split("-")[0]);
+                        e.setMonth(ctime.split("-")[1]);
+                        list.add(e);
+                    }
+                }
+                i = i + 1;
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                System.out.println(e);
+                break;
+            }
+        }
+        return list;
+    }
+
+    /**
+     * 描述：解析赛事 + 获取赛事对象
+     * @param htmlPage
+     * @param ctime
+     * @return
+     */
     public List<Event> getTomorrowEvent(HtmlPage htmlPage,String ctime,Boolean flag)
     {
         // 定义对象
@@ -286,7 +390,6 @@ public class HtmlUtil {
                     .get(i).getElementsByTag("tr").get(0)
                     .getElementsByTag("tr").get(0).getElementsByTag("td")
                     .get(0).text();
-            System.out.println(BSTYPE + " " +time);
             arr = time.split("日");
             dayBS = arr[0];
             try {
@@ -304,7 +407,6 @@ public class HtmlUtil {
                             .getElementsByTag("table").get(i)
                             .getElementsByTag("tr").get(2)
                             .getElementsByTag("td").get(0).text();
-                    System.out.println(BSTYPE +" "+ ZD +"VS"+KD);
                     Event e = new Event();
                     // 判断比赛是否在规定区间内
                     if (DateUtil.isEffectiveDate(
