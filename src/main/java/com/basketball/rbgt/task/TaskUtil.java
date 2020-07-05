@@ -98,7 +98,6 @@ public class TaskUtil {
         QueryWrapper<Event> queryWrapper = new QueryWrapper<Event>();
         queryWrapper.eq("month",DateUtil.getDate(0).split("-")[1]).eq("status",1).eq("status",1);
         List<Event> events = eventMapper.selectList(queryWrapper);
-        System.out.println(JSON.toJSONString(events));
         for (Event e : events){
             e.setResults(quizResultsUtil.getQuizResultsUtil(e));
             e.setStatus(2);
@@ -124,7 +123,6 @@ public class TaskUtil {
         queryWrapper.eq("status", 2).eq("month",month);
         List<Event> events = eventMapper.selectList(queryWrapper);
         int red = events.stream().filter(e -> quiz.equals(e.getResults())).collect(Collectors.toList()).size();
-        System.out.println(red);
         Report r = new Report();
         // 设置红单
         r.setAmount(red);
