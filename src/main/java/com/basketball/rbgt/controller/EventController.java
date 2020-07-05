@@ -139,5 +139,13 @@ public class EventController {
         return "success";
     }
 
+    @ApiOperation(value = "编辑 - 手动更新单月结束赛事竞猜结果")
+    @GetMapping("/update/month/end/quiz")
+    public String monthEndQuiz(){
+        System.out.println("异步线程开始");
+        taskService.UpdateByMonthQuizResult();
+        System.out.println("异步线程结束");
+        return "success";
+    }
 }
 

@@ -1,5 +1,7 @@
 package com.basketball.rbgt.task;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONAware;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.basketball.rbgt.mapper.EventMapper;
 import com.basketball.rbgt.mapper.ReportMapper;
@@ -37,27 +39,6 @@ public class TaskUtil {
      */
     private static final String quiz = "红";
 
-    @Async("myTaskAsyncPool")
-    public void test() {
-        for(int i = 0;i<10;i++){
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            System.out.println("我被异步调用了");
-        }
-    }
-
-    @Async("myTaskAsyncPool")
-    public void reportInfo() {
-        QueryWrapper<Event> queryWrapper = new QueryWrapper<Event>();
-        queryWrapper.eq("status",2);
-        List<Event> es = eventMapper.selectList(queryWrapper);
-        System.out.println("核算完的总数："+es.size());
-
-    }
-
     /**
      * 描述：异步获取篮球赛事
      * @param ctime
@@ -92,7 +73,7 @@ public class TaskUtil {
     }
 
     /**
-     * 描述：异步获取篮球赛事
+     * 描述：异步获取当天篮球赛事
      * @param ctime
      */
     @Async("myTaskAsyncPool")
@@ -101,6 +82,23 @@ public class TaskUtil {
         QueryWrapper<Event> queryWrapper = new QueryWrapper<Event>();
         queryWrapper.eq("start_time",ctime).eq("status",1);
         List<Event> events = eventMapper.selectList(queryWrapper);
+        for (Event e : events){
+            e.setResults(quizResultsUtil.getQuizResultsUtil(e));
+            e.setStatus(2);
+            eventMapper.updateById(e);
+        }
+    }
+
+    /**
+     * 描述：异步统计单月的篮球赛事
+     */
+    @Async("myTaskAsyncPool")
+    public void UpdateByMonthQuizResult()
+    {
+        QueryWrapper<Event> queryWrapper = new QueryWrapper<Event>();
+        queryWrapper.eq("month",DateUtil.getDate(0).split("-")[1]).eq("status",1).eq("status",1);
+        List<Event> events = eventMapper.selectList(queryWrapper);
+        System.out.println(JSON.toJSONString(events));
         for (Event e : events){
             e.setResults(quizResultsUtil.getQuizResultsUtil(e));
             e.setStatus(2);
@@ -125,7 +123,8 @@ public class TaskUtil {
         QueryWrapper<Event> queryWrapper = new QueryWrapper<Event>();
         queryWrapper.eq("status", 2).eq("month",month);
         List<Event> events = eventMapper.selectList(queryWrapper);
-        int red = events.stream().filter(e -> !quiz.equals(e.getQuizResults())).collect(Collectors.toList()).size();
+        int red = events.stream().filter(e -> quiz.equals(e.getResults())).collect(Collectors.toList()).size();
+        System.out.println(red);
         Report r = new Report();
         // 设置红单
         r.setAmount(red);

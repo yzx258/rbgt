@@ -47,7 +47,7 @@ public class TimingTask {
     private void UpdateQuizResult() {
         System.out.println("异步线程开始");
         System.out.println("每天2小时获取比赛竞猜结果，并入库");
-        taskService.UpdateQuizResult(DateUtil.getDate(0));
+        taskService.UpdateByMonthQuizResult();
         System.out.println("异步线程结束");
     }
 
