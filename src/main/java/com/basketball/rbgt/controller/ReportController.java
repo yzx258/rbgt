@@ -59,16 +59,11 @@ public class ReportController {
         // 设置年月
         r.setYear(DateUtil.getDate(0).split("-")[0]);
         r.setMonth(DateUtil.getDate(0).split("-")[1]);
-        if(reports.get(0).getQuizType() == 0){
-            r.setBlackAmount(reports.get(0).getAmount());
-        }else{
-            r.setRedAmount(reports.get(0).getAmount());
-        }
-        if(reports.get(1).getQuizType() == 0){
-            r.setBlackAmount(reports.get(1).getAmount());
-        }else{
-            r.setRedAmount(reports.get(1).getAmount());
-        }
+        // 设置红单数
+        r.setRedAmount(reports.get(0).getAmount());
+        // 设置黑单数
+        r.setBlackAmount(reports.get(1).getAmount());
+        // 设置百分比
         r.setRedRatio(bs(r.getRedAmount(),allAmount)+"%");
         r.setBlackRatio(bs(r.getBlackAmount(),allAmount)+"%");
         return new Response(r);

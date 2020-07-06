@@ -74,6 +74,16 @@ public class EventController {
         return "success";
     }
 
+    @ApiOperation(value = "新增 - 手动查询当天和明天赛事")
+    @GetMapping("/today/all")
+    public String todayAll(){
+        System.out.println("异步线程开始");
+        taskService.getTodayAllBasketball(DateUtil.getDate(0));
+        taskService.getTodayAllBasketball(DateUtil.getDate(1));
+        System.out.println("异步线程结束");
+        return "success";
+    }
+
     @ApiOperation(value = "新增 - 手动查询明天赛事")
     @GetMapping("/tomorrow")
     public String tomorrow(){
@@ -129,5 +139,13 @@ public class EventController {
         return "success";
     }
 
+    @ApiOperation(value = "编辑 - 手动更新单月结束赛事竞猜结果")
+    @GetMapping("/update/month/end/quiz")
+    public String monthEndQuiz(){
+        System.out.println("异步线程开始");
+        taskService.UpdateByMonthQuizResult();
+        System.out.println("异步线程结束");
+        return "success";
+    }
 }
 
