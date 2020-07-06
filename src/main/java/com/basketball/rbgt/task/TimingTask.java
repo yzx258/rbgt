@@ -26,6 +26,7 @@ public class TimingTask {
         System.out.println("异步线程开始");
         System.out.println("每天3小时获取比赛");
         taskService.getTodayAllBasketball(DateUtil.getDate(0));
+        taskService.getTodayAllBasketball(DateUtil.getDate(1));
         System.out.println("异步线程结束");
     }
 
