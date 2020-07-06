@@ -37,7 +37,7 @@ public class EventController {
     public Response todayEvent(@ApiParam(value = "date") @PathVariable String date){
         System.out.println("date - > "+date);
         QueryWrapper<Event> queryWrapper = new QueryWrapper<Event>();
-        queryWrapper.eq("start_time",date);
+        queryWrapper.eq("start_time",date).orderByAsc("event_time");
         return new Response(eventMapper.selectList(queryWrapper));
     }
 
@@ -45,7 +45,7 @@ public class EventController {
     @GetMapping("/today/event")
     public Response todayEvent(){
         QueryWrapper<Event> queryWrapper = new QueryWrapper<Event>();
-        queryWrapper.eq("start_time",DateUtil.getDate(0));
+        queryWrapper.eq("start_time",DateUtil.getDate(0)).orderByAsc("event_time");
         return new Response(eventMapper.selectList(queryWrapper));
     }
 
@@ -53,7 +53,7 @@ public class EventController {
     @GetMapping("/tomorrow/event")
     public Response tomorrowEvent(){
         QueryWrapper<Event> queryWrapper = new QueryWrapper<Event>();
-        queryWrapper.eq("start_time",DateUtil.getDate(1));
+        queryWrapper.eq("start_time",DateUtil.getDate(1)).orderByAsc("event_time");
         return new Response(eventMapper.selectList(queryWrapper));
     }
 
@@ -61,7 +61,7 @@ public class EventController {
     @GetMapping("/yesterday/event")
     public Response yesterdayEvent(){
         QueryWrapper<Event> queryWrapper = new QueryWrapper<Event>();
-        queryWrapper.eq("start_time",DateUtil.getDate(-1));
+        queryWrapper.eq("start_time",DateUtil.getDate(-1)).orderByAsc("event_time");
         return new Response(eventMapper.selectList(queryWrapper));
     }
 
