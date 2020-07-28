@@ -1,0 +1,71 @@
+NBA赛事信息表
+CREATE TABLE `event` (
+  `id` bigint NOT NULL COMMENT '唯一标识',
+  `event_time` varchar(255) DEFAULT NULL COMMENT '比赛时间',
+  `name` varchar(255) DEFAULT NULL COMMENT '比赛名称',
+  `quiz_results` varchar(255) DEFAULT NULL COMMENT '竞猜结果',
+  `results` varchar(255) DEFAULT NULL COMMENT '赛事结果',
+  `periodOne` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '赛事第一节',
+  `periodTow` varchar(255) DEFAULT NULL COMMENT '赛事第二节',
+  `periodThree` varchar(255) DEFAULT NULL COMMENT '赛事第三节',
+  `periodFour` varchar(255) DEFAULT NULL COMMENT '赛事第四节',
+  `overTimeOne` varchar(255) DEFAULT NULL COMMENT '赛事第加时一节',
+  `overTimeTow` varchar(255) DEFAULT NULL COMMENT '赛事第加时二节',
+  `overTimeThree` varchar(255) DEFAULT NULL COMMENT '赛事第加时三节',
+  `overTimeFour` varchar(255) DEFAULT NULL COMMENT '赛事第加时四节',
+  `overTimeFive` varchar(255) DEFAULT NULL COMMENT '赛事第加时五节',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `version` varchar(255) DEFAULT NULL COMMENT '版本号',
+  `deleted` int DEFAULT NULL COMMENT '逻辑删除：【0：没删除；1：删除】',
+  `type` int DEFAULT NULL COMMENT '赛事类型',
+  `type_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '赛事类型名称',
+  `start_time` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '开始日期',
+  `status` int DEFAULT '0' COMMENT '赛事状态：0：进行中；1：已结束；2：已核对',
+  `year` varchar(255) DEFAULT NULL COMMENT '年份',
+  `month` varchar(255) DEFAULT NULL COMMENT '月份',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+NBA赛事报表
+CREATE TABLE `report` (
+  `id` bigint NOT NULL COMMENT '唯一ID',
+  `year` varchar(255) DEFAULT NULL COMMENT '年份',
+  `month` varchar(255) DEFAULT NULL COMMENT '月份',
+  `quiz_type` int DEFAULT NULL COMMENT '竞猜类型：0：黑；1：红',
+  `create_time` varchar(255) DEFAULT NULL COMMENT '创建时间',
+  `amount` int DEFAULT NULL COMMENT '笔数',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+NBA投注指令表
+CREATE TABLE `instruction` (
+  `id` bigint NOT NULL COMMENT '唯一标识',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `version` int DEFAULT '0' COMMENT '版本号',
+  `deleted` int DEFAULT '0' COMMENT '是否删除',
+  `bet_amount` int DEFAULT NULL COMMENT '下注金额',
+  `bet_single_or_double` int DEFAULT NULL COMMENT '下注单双',
+  `bet_session` int DEFAULT NULL COMMENT '下注场次：1：第一节；2：第二节；3：第三节；4：第四节',
+  `bet_session_name` varchar(255) DEFAULT NULL COMMENT '下注场次名称：第一节 单双；第二节 单双；第三节 单双；第四节 单双',
+  `bet_status` int DEFAULT NULL COMMENT '下注状态：1：需要购买；2：已购买；3：已红单；4：四节全黑',
+  `bet_htn` varchar(255) DEFAULT NULL COMMENT '下注主队：湖人',
+  `bet_atn` varchar(255) DEFAULT NULL COMMENT '下注客队：快船',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+NBA投注倍率表
+CREATE TABLE `ratio` (
+  `id` bigint NOT NULL COMMENT '唯一标识',
+  `create_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `version` int DEFAULT '0' COMMENT '版本号',
+  `deleted` int DEFAULT '0' COMMENT '是否删除',
+  `type` int DEFAULT '1' COMMENT '倍率类型：1：NBA；2：CBA；3：其他',
+  `status` int DEFAULT '1' COMMENT '倍率状态：1：使用中；2：废弃',
+  `start_bet_price` int DEFAULT NULL COMMENT '开始投注金额：30',
+  `bet_ratio` double(255,0) DEFAULT NULL COMMENT '计算投注倍率：0.94',
+  `bet_range` varchar(255) DEFAULT NULL COMMENT '投注区间：[30,60,120]',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
