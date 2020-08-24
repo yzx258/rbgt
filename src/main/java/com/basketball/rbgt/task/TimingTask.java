@@ -19,7 +19,7 @@ public class TimingTask {
     private TaskUtil taskService;
 
     /**
-     * 每天4小时获取比赛，并入库
+     * 每天3小时获取比赛，并入库
      */
     @Scheduled(cron = "0 0 0/3 * * ? ")
     private void getStartGame() {
@@ -31,7 +31,7 @@ public class TimingTask {
     }
 
     /**
-     * 每天2小时获取比赛的结果，并入库
+     * 每天1小时获取比赛的结果，并入库
      */
     @Scheduled(cron = "0 0 0/1 * * ? ")
     private void getEndGame() {
