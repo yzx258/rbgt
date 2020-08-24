@@ -7,11 +7,14 @@ import com.basketball.rbgt.mapper.EventMapper;
 import com.basketball.rbgt.pojo.Event;
 import com.basketball.rbgt.task.TaskUtil;
 import com.basketball.rbgt.util.DateUtil;
+import com.basketball.rbgt.util.HtmlUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * <p>
@@ -31,6 +34,8 @@ public class EventController {
     private TaskUtil taskService;
     @Autowired
     private EventMapper eventMapper;
+    @Autowired
+    private HtmlUtil htmlUtil;
 
     @ApiOperation(value = "查询 - 根据日期查询赛事信息")
     @GetMapping("get/date/event/{date}")
@@ -145,6 +150,13 @@ public class EventController {
         System.out.println("异步线程开始");
         taskService.UpdateByMonthQuizResult();
         System.out.println("异步线程结束");
+        return "success";
+    }
+
+    @ApiOperation(value = "编辑 - 手动更新单月结束赛事竞猜结果")
+    @PostMapping("/test")
+    public String test(@RequestBody List<Event> eventList){
+        htmlUtil.allBetEvent(eventList);
         return "success";
     }
 }

@@ -1,6 +1,7 @@
 package com.basketball.rbgt.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.basketball.rbgt.mapper.RatioMapper;
 import com.basketball.rbgt.pojo.Ratio;
 import com.basketball.rbgt.service.RatioService;

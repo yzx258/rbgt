@@ -52,6 +52,7 @@ CREATE TABLE `instruction` (
   `bet_status` int DEFAULT NULL COMMENT '下注状态：1：需要购买；2：已购买；3：已红单；4：四节全黑',
   `bet_htn` varchar(255) DEFAULT NULL COMMENT '下注主队：湖人',
   `bet_atn` varchar(255) DEFAULT NULL COMMENT '下注客队：快船',
+  `bet_number` int DEFAULT '0' COMMENT '失败次数，默认0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 

@@ -1,14 +1,21 @@
 package com.basketball.rbgt.util;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.basketball.rbgt.mapper.EventMapper;
+import com.basketball.rbgt.mapper.InstructionMapper;
+import com.basketball.rbgt.mapper.RatioMapper;
 import com.basketball.rbgt.pojo.Event;
+import com.basketball.rbgt.pojo.Instruction;
+import com.basketball.rbgt.pojo.Ratio;
+import com.basketball.rbgt.service.InstructionService;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.ScriptResult;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -19,16 +26,24 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by xuyh at 2017/11/6 14:03.
  * @author yiautos
  */
 @Component
+@Slf4j
 public class HtmlUtil {
 
     @Autowired
     private EventMapper eventMapper;
+    @Autowired
+    private RatioMapper ratioMapper;
+    @Autowired
+    private InstructionService instructionService;
+    @Autowired
+    private InstructionMapper instructionMapper;
 
     /**
      * 描述：比赛队伍名过滤条件
@@ -67,6 +82,108 @@ public class HtmlUtil {
             List<Event> el = getTomorrowEvent(hps,DateUtil.getDate(0),flag);
             // 批量插入数据
             insertEvent(el,ctime);
+        }
+    }
+
+    /**
+     * 描述：新增下注指令
+     * @param ctime
+     */
+    public void allBetEvent(List<Event> event){
+        // 爬取的页面信息
+        // HtmlPage htmlPage = getHtmlPage(ctime);
+        // 解析出来的数据对象
+        // List<Event> event = getBetEvent(htmlPage,ctime);
+        // 过滤数据【只包含：CBA和NBA赛事】
+        List<Event> collect = event.stream().filter(e -> (e.getType() == 1 || e.getType() == 2)).collect(Collectors.toList());
+        // 判断每节是否红单
+        for(Event e : collect) {
+            QueryWrapper<Event> queryWrapper = new QueryWrapper<Event>();
+            queryWrapper.eq("name",e.getName()).eq("start_time",e.getStartTime());
+            List<Event> es = eventMapper.selectList(queryWrapper);
+            // 判断是否有数据
+            if(es.size() == 1)
+            {
+                Event event1 = es.get(0);
+                // 判断支付指令是否已红单
+                if(instructionService.checkInstructionRed(event1,e)){
+                    log.info("该比赛已红单 -> {},{}",event1.getName(),event1.getStartTime());
+                    return;
+                }
+                // 获取倍率
+                Ratio ratio = ratioMapper.selectById("1288129806892171266");
+                JSONArray objects = JSON.parseArray(ratio.getBetRange());
+                System.out.println("倍率：" + ratio.getBetRange());
+
+                int k1,k2 = 0;
+                if(StringUtils.isNotEmpty(e.getPeriodOne()) && StringUtils.isEmpty(e.getPeriodTow())){
+                    // 第一节,新增支付指令
+                    instructionService.add(es.get(0),e,1);
+                    return;
+                }
+                else if(StringUtils.isNotEmpty(e.getPeriodTow()) && StringUtils.isEmpty(e.getPeriodThree())){
+                    // 判断第一节是否红了
+                    if(instructionService.checkInstruction(event1,e,1)){
+                        log.info("第一节已红单 -> {},{}",event1.getName(),event1.getStartTime());
+                        return;
+                    }
+                    // 第二节
+                    instructionService.add(es.get(0),e,2);
+                    return;
+                }else if(StringUtils.isNotEmpty(e.getPeriodThree()) && StringUtils.isEmpty(e.getPeriodFour())){
+                    // 判断第二节是否红了
+                    if(instructionService.checkInstruction(event1,e,2)){
+                        log.info("第二节已红单 -> {},{}",event1.getName(),event1.getStartTime());
+                        return;
+                    }
+                    // 第三节
+                    instructionService.add(es.get(0),e,3);
+                    return;
+                }else if(StringUtils.isNotEmpty(e.getPeriodFour()) && "比赛进行中".equals(e.getOverTimeFive())){
+                    // 判断第三节是否红了
+                    if(instructionService.checkInstruction(event1,e,3)){
+                        log.info("第三节已红单 -> {},{}",event1.getName(),event1.getStartTime());
+                        return;
+                    }
+                    // 判断是否已购买
+                    QueryWrapper<Instruction> qw = new QueryWrapper<Instruction>();
+                    qw.eq("bet_htn",event1.getName().split("VS")[0]).eq("bet_time",DateUtil.getDate(0)).eq("bet_status",2);
+                    List<Instruction> is = instructionMapper.selectList(qw);
+                    if(is.size() == 1){
+                        log.info("第四节已购买，等待比赛结束 -> {},{}",event1.getName(),event1.getStartTime());
+                        return;
+                    }
+                    // 新增第四节下注指令
+                    instructionService.add(es.get(0),e,4);
+                    return;
+                }else if(StringUtils.isNotEmpty(e.getPeriodFour()) && "比赛结束".equals(e.getOverTimeFive())){
+                    // 第四节判断，是否全黑
+                    String[] splitf = e.getPeriodFour().split(":");
+                    k1 = Integer.parseInt(splitf[0]);
+                    k2 = Integer.parseInt(splitf[1]);
+                    String[] splitb = event1.getQuizResults().split(",");
+                    String ds = "双";
+                    if((k1+k2)%2==1){
+                        ds = "单";
+                    }
+                    QueryWrapper<Instruction> qw = new QueryWrapper<Instruction>();
+                    qw.eq("bet_htn",event1.getName().split("VS")[0]).eq("bet_time",DateUtil.getDate(0)).eq("bet_status",2);
+                    List<Instruction> is = instructionMapper.selectList(qw);
+                    if(is.size() == 1){
+                        Instruction instruction = is.get(0);
+                        if(ds.equals(splitb[3])){
+                            // 更新第四节的下注指令
+                            instruction.setBetStatus(3);
+                            instructionMapper.updateById(instruction);
+                            return;
+                        }else{
+                            // 更新第四节的下注指令
+                            instruction.setBetStatus(5);
+                            instructionMapper.updateById(instruction);
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -249,6 +366,108 @@ public class HtmlUtil {
                             .getElementsByTag("table").get(i)
                             .getElementsByTag("tr").get(2)
                             .getElementsByTag("td").get(4).text());
+                    list.add(e);
+                }
+                i = i + 1;
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                System.out.println(e);
+                break;
+            }
+        }
+        return list;
+    }
+
+    /**
+     * 描述：解析赛事 + 获取赛事对象
+     * @param htmlPage
+     * @param ctime
+     * @return
+     */
+    public List<Event> getBetEvent(HtmlPage htmlPage,String ctime)
+    {
+        // 定义对象
+        List<Event> list = new ArrayList<>();
+        //直接将加载完成的页面转换成xml格式的字符串
+        String pageXml = htmlPage.asXml();
+        //获取html文档
+        Document document = Jsoup.parse(pageXml);
+        int len = document.getElementById("live").getElementsByTag("table").size();
+        // 获取当日天数+1,获取明天比赛信息
+        String day = ctime.split("-")[2];
+        int day_len = day.length();
+        if(1 == day_len)
+        {
+            day = "0"+day;
+        }
+        String LX, ZD, time, dayBS, dayBSS, KD = "", format = "HH:mm",BSTYPE = "";
+        String[] arr = new String[2];
+        for (int i = 0; i < len; i++) {
+            LX = document.getElementById("live").getElementsByTag("table")
+                    .get(i).getElementsByTag("tr").get(0).text();
+            if (LX.contains("N") || LX.contains("B") || LX.contains("E")
+                    || LX.contains("篮") || LX.contains("甲") || LX.contains("甲")
+                    || LX.contains("星") || LX.contains("乙") || LX.contains("女")
+                    || LX.contains("友") || LX.contains("东") || LX.contains("西")
+                    || LX.contains("联") || LX.contains("杯") || LX.contains("超"))
+            {
+                BSTYPE = LX;
+                i = i + 1;
+            }
+            time = document.getElementById("live").getElementsByTag("table")
+                    .get(i).getElementsByTag("tr").get(0)
+                    .getElementsByTag("tr").get(0).getElementsByTag("td")
+                    .get(0).text();
+            arr = time.split("日");
+            dayBS = arr[0];
+            try {
+                // 判断是否为单日比赛
+                if (day.equals(dayBS)) {
+                    //获取主客队名称
+                    ZD = document.getElementById("live")
+                            .getElementsByTag("table").get(i)
+                            .getElementsByTag("tr").get(1)
+                            .getElementsByTag("td").get(1).text();
+                    KD = document.getElementById("live")
+                            .getElementsByTag("table").get(i)
+                            .getElementsByTag("tr").get(2)
+                            .getElementsByTag("td").get(0).text();
+                    Event e = new Event();
+                    e.setName(getEventName(ZD,KD));
+                    e.setUpdateTime(new Date());
+                    e.setPeriodOne(document.getElementById("live")
+                            .getElementsByTag("table").get(i)
+                            .getElementsByTag("tr").get(1)
+                            .getElementsByTag("td").get(2).text()+":"+document.getElementById("live")
+                            .getElementsByTag("table").get(i)
+                            .getElementsByTag("tr").get(2)
+                            .getElementsByTag("td").get(1).text());
+                    e.setPeriodTow(document.getElementById("live")
+                            .getElementsByTag("table").get(i)
+                            .getElementsByTag("tr").get(1)
+                            .getElementsByTag("td").get(3).text()+":"+document.getElementById("live")
+                            .getElementsByTag("table").get(i)
+                            .getElementsByTag("tr").get(2)
+                            .getElementsByTag("td").get(2).text());
+                    e.setPeriodThree(document.getElementById("live")
+                            .getElementsByTag("table").get(i)
+                            .getElementsByTag("tr").get(1)
+                            .getElementsByTag("td").get(4).text()+":"+document.getElementById("live")
+                            .getElementsByTag("table").get(i)
+                            .getElementsByTag("tr").get(2)
+                            .getElementsByTag("td").get(3).text());
+                    e.setPeriodFour(document.getElementById("live")
+                            .getElementsByTag("table").get(i)
+                            .getElementsByTag("tr").get(1)
+                            .getElementsByTag("td").get(5).text()+":"+document.getElementById("live")
+                            .getElementsByTag("table").get(i)
+                            .getElementsByTag("tr").get(2)
+                            .getElementsByTag("td").get(4).text());
+                    if((time.contains("完"))){
+                        e.setOverTimeFive("比赛结束");
+                    }else{
+                        e.setOverTimeFive("比赛进行中");
+                    }
                     list.add(e);
                 }
                 i = i + 1;

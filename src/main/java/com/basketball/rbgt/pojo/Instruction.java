@@ -29,8 +29,8 @@ public class Instruction implements Serializable {
     /**
      * 唯一标识
      */
-    @TableId(value = "id", type = IdType.ID_WORKER)
-    private Long id;
+    @TableId(value = "id", type = IdType.ASSIGN_UUID)
+    private String id;
 
     /**
      * 创建时间
@@ -75,7 +75,7 @@ public class Instruction implements Serializable {
     private String betSessionName;
 
     /**
-     * 下注状态：1：需要购买；2：已购买；3：已红单；4：四节全黑
+     * 下注状态：1：需要购买；2：已购买；3：已红单；4：已黑单；5：四节全黑
      */
     private Integer betStatus;
 
@@ -89,5 +89,14 @@ public class Instruction implements Serializable {
      */
     private String betAtn;
 
+    /**
+     * 下注次数：失败次数，默认0
+     */
+    private Integer betNumber;
+
+    /**
+     * 下注时间：2020-08-23
+     */
+    private String betTime;
 
 }

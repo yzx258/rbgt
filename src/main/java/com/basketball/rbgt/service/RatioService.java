@@ -1,7 +1,5 @@
 package com.basketball.rbgt.service;
 
-import com.basketball.rbgt.pojo.Ratio;
-
 /**
  * @author 俞春旺
  */
