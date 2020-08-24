@@ -117,7 +117,15 @@ public class HtmlUtil {
 
                 int k1,k2 = 0;
                 if(StringUtils.isNotEmpty(e.getPeriodOne()) && StringUtils.isEmpty(e.getPeriodTow())){
+                    // 判断是否已购买
+                    QueryWrapper<Instruction> qw = new QueryWrapper<Instruction>();
+                    qw.eq("bet_htn",event1.getName().split("VS")[0]).eq("bet_time",DateUtil.getDate(0)).eq("bet_session",1);
+                    List<Instruction> is = instructionMapper.selectList(qw);
                     // 第一节,新增支付指令
+                    if(is.size() == 1){
+                        log.info("第四节已购买，等待比赛结束 -> {},{}",event1.getName(),event1.getStartTime());
+                        return;
+                    }
                     instructionService.add(es.get(0),e,1);
                     return;
                 }
@@ -127,6 +135,14 @@ public class HtmlUtil {
                         log.info("第一节已红单 -> {},{}",event1.getName(),event1.getStartTime());
                         return;
                     }
+                    // 判断是否已购买
+                    QueryWrapper<Instruction> qw = new QueryWrapper<Instruction>();
+                    qw.eq("bet_htn",event1.getName().split("VS")[0]).eq("bet_time",DateUtil.getDate(0)).eq("bet_session",2);
+                    List<Instruction> is = instructionMapper.selectList(qw);
+                    if(is.size() == 1){
+                        log.info("第四节已购买，等待比赛结束 -> {},{}",event1.getName(),event1.getStartTime());
+                        return;
+                    }
                     // 第二节
                     instructionService.add(es.get(0),e,2);
                     return;
@@ -134,6 +150,14 @@ public class HtmlUtil {
                     // 判断第二节是否红了
                     if(instructionService.checkInstruction(event1,e,2)){
                         log.info("第二节已红单 -> {},{}",event1.getName(),event1.getStartTime());
+                        return;
+                    }
+                    // 判断是否已购买
+                    QueryWrapper<Instruction> qw = new QueryWrapper<Instruction>();
+                    qw.eq("bet_htn",event1.getName().split("VS")[0]).eq("bet_time",DateUtil.getDate(0)).eq("bet_session",3);
+                    List<Instruction> is = instructionMapper.selectList(qw);
+                    if(is.size() == 1){
+                        log.info("第四节已购买，等待比赛结束 -> {},{}",event1.getName(),event1.getStartTime());
                         return;
                     }
                     // 第三节
@@ -147,7 +171,7 @@ public class HtmlUtil {
                     }
                     // 判断是否已购买
                     QueryWrapper<Instruction> qw = new QueryWrapper<Instruction>();
-                    qw.eq("bet_htn",event1.getName().split("VS")[0]).eq("bet_time",DateUtil.getDate(0)).eq("bet_status",2);
+                    qw.eq("bet_htn",event1.getName().split("VS")[0]).eq("bet_time",DateUtil.getDate(0)).eq("bet_session",4);
                     List<Instruction> is = instructionMapper.selectList(qw);
                     if(is.size() == 1){
                         log.info("第四节已购买，等待比赛结束 -> {},{}",event1.getName(),event1.getStartTime());
