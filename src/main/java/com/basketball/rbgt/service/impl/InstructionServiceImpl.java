@@ -53,14 +53,14 @@ public class InstructionServiceImpl implements InstructionService {
             instruction.setBetAmount(Integer.parseInt(objects.get(betSession-1) + ""));
             instruction.setBetHtn(event1.getName().split("VS")[0]);
             instruction.setBetAtn(event1.getName().split("VS")[1]);
-            instruction.setBetSession(1);
-            if(1 == betSession){
+            instruction.setBetSession(betSession);
+            if(1 == betSession || 5 == betSession){
                 instruction.setBetSessionName("总得分:滚球 单 / 双-第一节");
-            }else if(2 == betSession){
+            }else if(2 == betSession || 6 == betSession){
                 instruction.setBetSessionName("总得分:滚球 单 / 双-第二节");
-            }else if(3 == betSession){
+            }else if(3 == betSession || 7 == betSession){
                 instruction.setBetSessionName("总得分:滚球 单 / 双-第三节");
-            }else if(4 == betSession){
+            }else if(4 == betSession || 8 == betSession){
                 instruction.setBetSessionName("总得分:滚球 单 / 双");
             }
             String[] split1 = event1.getQuizResults().split(",");
@@ -72,7 +72,7 @@ public class InstructionServiceImpl implements InstructionService {
             instruction.setCreateTime(new Date());
             instruction.setBetStatus(1);
             instruction.setBetNumber(0);
-            instruction.setBetSession(betSession);
+            instruction.setBetSession(betSession >= 5 ? betSession : betSession - 4);
             instruction.setBetTime(DateUtil.getDate(0));
             instructionMapper.insert(instruction);
             log.info("插入第一节下注指令 - > {},{}", e.getName(), e.getStartTime());
@@ -89,13 +89,13 @@ public class InstructionServiceImpl implements InstructionService {
     public Boolean checkInstruction(Event event1, Event e,Integer betSession) {
         int k1,k2 =0;
         String[] splitf = null;
-        if(betSession == 1){
+        if(betSession == 1 || betSession == 5 ){
             splitf = e.getPeriodOne().split(":");
-        }else if(betSession == 2){
+        }else if(betSession == 2 || betSession == 6 ){
             splitf = e.getPeriodTow().split(":");
-        }else if(betSession == 3){
+        }else if(betSession == 3 || betSession == 7 ){
             splitf = e.getPeriodThree().split(":");
-        }else if(betSession == 4){
+        }else if(betSession == 4 || betSession == 8 ){
             splitf = e.getPeriodFour().split(":");
         }
         k1 = Integer.parseInt(splitf[0]);
@@ -110,7 +110,7 @@ public class InstructionServiceImpl implements InstructionService {
         List<Instruction> is = instructionMapper.selectList(qw);
         if(is.size() == 1){
             Instruction instruction = is.get(0);
-            if(ds.equals(splitb[betSession-1])){
+            if(ds.equals(splitb[betSession >= 5 ? betSession-4 : betSession])){
                 // 更新第一节的下注指令
                 instruction.setBetStatus(3);
                 instructionMapper.updateById(instruction);

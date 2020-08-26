@@ -21,7 +21,7 @@ public class TimingTask {
     /**
      * 每天3小时获取比赛，并入库
      */
-    @Scheduled(cron = "0 0 0/3 * * ? ")
+    //@Scheduled(cron = "0 0 0/3 * * ? ")
     private void getStartGame() {
         System.out.println("异步线程开始");
         System.out.println("每天3小时获取比赛");
@@ -33,7 +33,7 @@ public class TimingTask {
     /**
      * 每天1小时获取比赛的结果，并入库
      */
-    @Scheduled(cron = "0 0 0/1 * * ? ")
+    //@Scheduled(cron = "0 0 0/1 * * ? ")
     private void getEndGame() {
         System.out.println("异步线程开始");
         System.out.println("每天2小时获取比赛的结果");
@@ -44,7 +44,7 @@ public class TimingTask {
     /**
      * 每天2小时获取比赛竞猜结果，并入库
      */
-    @Scheduled(cron = "0 0 0/2 * * ? ")
+    //@Scheduled(cron = "0 0 0/2 * * ? ")
     private void UpdateQuizResult() {
         System.out.println("异步线程开始");
         System.out.println("每天2小时获取比赛竞猜结果，并入库");
@@ -55,7 +55,7 @@ public class TimingTask {
     /**
      * 每天23小时获取历史报表，并入库
      */
-    @Scheduled(cron = "0 0 23 * * ? ")
+    //@Scheduled(cron = "0 0 23 * * ? ")
     private void updateReport() {
         System.out.println("异步线程开始");
         System.out.println("每天2小时获取比赛竞猜结果，并入库");
