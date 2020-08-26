@@ -94,13 +94,8 @@ public class HtmlUtil {
         HtmlPage htmlPage = getHtmlPage(ctime);
         // 解析出来的数据对象
         List<Event> event = getBetEvent(htmlPage,ctime);
-        log.info("我是获取出来的数据 -> {},",JSON.toJSONString(event));
         // 过滤数据【只包含：CBA和NBA赛事】
         List<Event> collect = event.stream().filter(e -> (e.getType() == 1 || e.getType() == 2)).collect(Collectors.toList());
-        if(null == collect && collect.size() == 0){
-            log.info("暂无数据获取");
-            return;
-        }
         // 判断每节是否红单
         for(Event e : collect) {
             QueryWrapper<Event> queryWrapper = new QueryWrapper<Event>();
