@@ -89,18 +89,33 @@ public class HtmlUtil {
      * 描述：新增下注指令【第一节 - 第四节】
      * @param ctime
      */
-    public void allBetEvent(List<Event> event){
+    public void allBetEvent(String ctime){
         // 爬取的页面信息
-        // HtmlPage htmlPage = getHtmlPage(ctime);
+        HtmlPage htmlPage = getHtmlPage(ctime);
         // 解析出来的数据对象
-        // List<Event> event = getBetEvent(htmlPage,ctime);
+        List<Event> event = getBetEvent(htmlPage,ctime);
+        log.info("我是获取出来的数据 -> {},",JSON.toJSONString(event));
         // 过滤数据【只包含：CBA和NBA赛事】
         List<Event> collect = event.stream().filter(e -> (e.getType() == 1 || e.getType() == 2)).collect(Collectors.toList());
+        if(null == collect && collect.size() == 0){
+            log.info("暂无数据获取");
+            return;
+        }
         // 判断每节是否红单
         for(Event e : collect) {
             QueryWrapper<Event> queryWrapper = new QueryWrapper<Event>();
             queryWrapper.eq("name",e.getName()).eq("start_time",e.getStartTime());
             List<Event> es = eventMapper.selectList(queryWrapper);
+            // 判断比赛是否开始
+            if(":".equals(e.getPeriodOne())){
+                log.info("该比赛未开始 -> {},{},{}",es.get(0).getName(),es.get(0).getResults(),es.get(0).getStartTime());
+                continue;
+            }
+            // 判断比赛是否红单
+            if(StringUtils.isNotEmpty(es.get(0).getResults())){
+                log.info("该比赛已出比赛结果 -> {},{},{}",es.get(0).getName(),es.get(0).getResults(),es.get(0).getStartTime());
+                continue;
+            }
             // 判断是否有数据
             if(es.size() == 1)
             {
@@ -108,7 +123,7 @@ public class HtmlUtil {
                 // 判断支付指令是否已红单
                 if(instructionService.checkInstructionRed(event1,e)){
                     log.info("该比赛已红单 -> {},{}",event1.getName(),event1.getStartTime());
-                    return;
+                    continue;
                 }
                 // 下注场次【默认为1】
                 int betSession = 1;
@@ -121,7 +136,7 @@ public class HtmlUtil {
                     // 第一节,新增支付指令
                     if(is.size() == 1){
                         log.info("第一节已购买，等待比赛结束 -> {},{}",event1.getName(),event1.getStartTime());
-                        return;
+                        continue;
                     }
                     // 判断是否存在黑五场的数据
                     QueryWrapper<Instruction> black = new QueryWrapper<Instruction>();
@@ -132,7 +147,7 @@ public class HtmlUtil {
                         betSession = 5;
                     }
                     instructionService.add(es.get(0),e,betSession);
-                    return;
+                    continue;
                 }
                 else if(StringUtils.isNotEmpty(e.getPeriodTow()) && StringUtils.isEmpty(e.getPeriodThree())){
                     QueryWrapper<Instruction> qw1 = new QueryWrapper<Instruction>();
@@ -140,7 +155,7 @@ public class HtmlUtil {
                     List<Instruction> is1 = instructionMapper.selectList(qw1);
                     if(is1.size() == 0){
                         log.info("第一节无下注记录 -> {},{}",event1.getName(),event1.getStartTime());
-                        return;
+                        continue;
                     }
                     // 判断是否已购买
                     QueryWrapper<Instruction> qw = new QueryWrapper<Instruction>();
@@ -148,18 +163,18 @@ public class HtmlUtil {
                     List<Instruction> is = instructionMapper.selectList(qw);
                     if(is.size() == 1){
                         log.info("第二节已购买，等待比赛结束 -> {},{}",event1.getName(),event1.getStartTime());
-                        return;
+                        continue;
                     }
                     // 第二节
                     instructionService.add(es.get(0),e,is1.get(0).getBetSession()+1);
-                    return;
+                    continue;
                 }else if(StringUtils.isNotEmpty(e.getPeriodThree()) && StringUtils.isEmpty(e.getPeriodFour())){
                     QueryWrapper<Instruction> qw1 = new QueryWrapper<Instruction>();
                     qw1.eq("bet_htn",event1.getName().split("VS")[0]).eq("bet_time",DateUtil.getDate(0)).eq("bet_status",2);
                     List<Instruction> is1 = instructionMapper.selectList(qw1);
                     if(is1.size() == 0){
                         log.info("第二节无下注记录 -> {},{}",event1.getName(),event1.getStartTime());
-                        return;
+                        continue;
                     }
                     // 判断是否已购买
                     QueryWrapper<Instruction> qw = new QueryWrapper<Instruction>();
@@ -167,18 +182,18 @@ public class HtmlUtil {
                     List<Instruction> is = instructionMapper.selectList(qw);
                     if(is.size() == 1){
                         log.info("第四节已购买，等待比赛结束 -> {},{}",event1.getName(),event1.getStartTime());
-                        return;
+                        continue;
                     }
                     // 第三节
                     instructionService.add(es.get(0),e,is1.get(0).getBetSession()+1);
-                    return;
+                    continue;
                 }else if(StringUtils.isNotEmpty(e.getPeriodFour()) && "比赛进行中".equals(e.getOverTimeFive())){
                     QueryWrapper<Instruction> qw1 = new QueryWrapper<Instruction>();
                     qw1.eq("bet_htn",event1.getName().split("VS")[0]).eq("bet_time",DateUtil.getDate(0)).eq("bet_status",2);
                     List<Instruction> is1 = instructionMapper.selectList(qw1);
                     if(is1.size() == 0){
                         log.info("第三节无下注记录 -> {},{}",event1.getName(),event1.getStartTime());
-                        return;
+                        continue;
                     }
                     // 判断是否已购买
                     QueryWrapper<Instruction> qw = new QueryWrapper<Instruction>();
@@ -186,11 +201,11 @@ public class HtmlUtil {
                     List<Instruction> is = instructionMapper.selectList(qw);
                     if(is.size() == 1){
                         log.info("第四节已购买，等待比赛结束 -> {},{}",event1.getName(),event1.getStartTime());
-                        return;
+                        continue;
                     }
                     // 新增第四节下注指令
                     instructionService.add(es.get(0),e,is1.get(0).getBetSession()+1);
-                    return;
+                    continue;
                 }else if(StringUtils.isNotEmpty(e.getPeriodFour()) && "比赛结束".equals(e.getOverTimeFive())){
                     // 第四节判断，是否全黑
                     int k1,k2 = 0;
@@ -222,7 +237,7 @@ public class HtmlUtil {
                             }
                             instruction.setBetStatus(3);
                             instructionMapper.updateById(instruction);
-                            return;
+                            continue;
                         }else{
                             // 更新第四节的下注指令
                             instruction.setBetStatus(5);
@@ -481,6 +496,8 @@ public class HtmlUtil {
                             .getElementsByTag("td").get(0).text();
                     Event e = new Event();
                     e.setName(getEventName(ZD,KD));
+                    e.setType(getType(BSTYPE));
+                    e.setStartTime(DateUtil.getDate(0));
                     e.setUpdateTime(new Date());
                     e.setPeriodOne(document.getElementById("live")
                             .getElementsByTag("table").get(i)

@@ -27,12 +27,12 @@ public class InstructionController {
     @Autowired
     private HtmlUtil htmlUtil;
 
-    @ApiOperation(value = "编辑 - 手动更新单月结束赛事竞猜结果")
-    @PostMapping("/test")
-    public String test(@RequestBody List<Event> eventList){
-        htmlUtil.allBetEvent(eventList);
-        return "success";
-    }
+//    @ApiOperation(value = "编辑 - 手动更新单月结束赛事竞猜结果")
+//    @PostMapping("/test")
+//    public String test(@RequestBody List<Event> eventList){
+//        htmlUtil.allBetEvent(eventList);
+//        return "success";
+//    }
 
 }
 

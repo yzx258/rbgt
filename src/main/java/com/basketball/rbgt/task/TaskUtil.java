@@ -106,6 +106,15 @@ public class TaskUtil {
     }
 
     /**
+     * 描述：添加下注指令
+     */
+    @Async("myTaskAsyncPool")
+    public void addBet(String ctime)
+    {
+        htmlUtil.allBetEvent(ctime);
+    }
+
+    /**
      * 描述：异步获取报表信息
 
      */
