@@ -65,7 +65,6 @@ public class DateUtil {
         }else if(_switch == 1){
             calendar.add(Calendar.DATE, _switch);
         }
-        System.out.println(sdf.format(calendar.getTime()));
         return sdf.format(calendar.getTime()).toString();
     }
 }
