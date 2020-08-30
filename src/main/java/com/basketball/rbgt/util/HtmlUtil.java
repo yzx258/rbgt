@@ -781,9 +781,9 @@ public class HtmlUtil {
      * @return
      */
     public int getType(String typeName){
-        if(CBA.equals(typeName)){
+        if(CBA.equals(typeName) || "CBA季后赛".equals(typeName) || "CBA季后".equals(typeName)){
             return 1;
-        }else if(NBA.equals(typeName)){
+        }else if(NBA.equals(typeName) || "NBA季后赛".equals(typeName) || "NBA季后".equals(typeName)){
             return 2;
         }else if(W_NBA.equals(typeName)){
             return 3;
