@@ -41,4 +41,16 @@ public interface InstructionService {
      * @return
      */
     List<Instruction> getByStatus();
+
+    /**
+     * 更新下注失败赛事
+     * @param instructionId
+     */
+    void updateBetError(String instructionId);
+
+    /**
+     * 更新下注成功赛事
+     * @param instructionId
+     */
+    void updateBetSuccess(String instructionId);
 }

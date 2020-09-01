@@ -10,6 +10,7 @@ import com.basketball.rbgt.pojo.Instruction;
 import com.basketball.rbgt.pojo.Ratio;
 import com.basketball.rbgt.service.InstructionService;
 import com.basketball.rbgt.util.DateUtil;
+import com.github.houbb.opencc4j.util.ObjectUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -153,5 +154,37 @@ public class InstructionServiceImpl implements InstructionService {
         qw.eq("bet_time",DateUtil.getDate(0)).eq("bet_status",1);
         List<Instruction> is = instructionMapper.selectList(qw);
         return is;
+    }
+
+    /**
+     * 更新下注失败赛事
+     * @param instructionId
+     */
+    @Override
+    public void updateBetError(String instructionId) {
+        // 查询支付指令
+        Instruction instruction = instructionMapper.selectById(instructionId);
+        if(ObjectUtil.isNotNull(instruction)){
+            // 设置支付指令失败次数
+            instruction.setBetNumber(instruction.getBetNumber() + 1);
+            // 更新支付指令失败次数+1
+            instructionMapper.updateById(instruction);
+        }
+    }
+
+    /**
+     * 更新下注成功赛事
+     * @param instructionId
+     */
+    @Override
+    public void updateBetSuccess(String instructionId) {
+        // 查询支付指令
+        Instruction instruction = instructionMapper.selectById(instructionId);
+        if(ObjectUtil.isNotNull(instruction)){
+            // 设置支付指令失败次数
+            instruction.setBetStatus(2);
+            // 更新支付指令为已购买
+            instructionMapper.updateById(instruction);
+        }
     }
 }

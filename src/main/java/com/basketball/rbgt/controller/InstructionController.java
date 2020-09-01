@@ -32,8 +32,22 @@ public class InstructionController {
 
     @ApiOperation(value = "查询 - 获取待下注指令")
     @GetMapping("/get")
-    public Response<List<Instruction>> test(){
+    public Response<List<Instruction>> get(){
         return new Response(instructionService.getByStatus());
+    }
+
+    @ApiOperation(value = "更新 - 失败下注指令")
+    @GetMapping("/update/error/{id}")
+    public Response updateError(@PathVariable("id") String id){
+        instructionService.updateBetError(id);
+        return new Response();
+    }
+
+    @ApiOperation(value = "更新 - 成功下注指令")
+    @GetMapping("/update/success/{id}")
+    public Response updateSuccess(@PathVariable("id") String id){
+        instructionService.updateBetSuccess(id);
+        return new Response();
     }
 
 }
