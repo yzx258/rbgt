@@ -1,7 +1,10 @@
 package com.basketball.rbgt.service;
 
 import com.basketball.rbgt.pojo.Event;
+import com.basketball.rbgt.pojo.Instruction;
 import com.basketball.rbgt.pojo.Ratio;
+
+import java.util.List;
 
 /**
  * @author 俞春旺
@@ -32,4 +35,10 @@ public interface InstructionService {
      * @return
      */
     Boolean checkInstructionRed(Event event1, Event e);
+
+    /**
+     * 根据状态和时间获取下注指令
+     * @return
+     */
+    List<Instruction> getByStatus();
 }

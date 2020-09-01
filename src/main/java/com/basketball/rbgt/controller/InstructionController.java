@@ -1,7 +1,10 @@
 package com.basketball.rbgt.controller;
 
 
+import com.basketball.rbgt.config.Response;
 import com.basketball.rbgt.pojo.Event;
+import com.basketball.rbgt.pojo.Instruction;
+import com.basketball.rbgt.service.InstructionService;
 import com.basketball.rbgt.util.HtmlUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -25,14 +28,13 @@ import java.util.List;
 public class InstructionController {
 
     @Autowired
-    private HtmlUtil htmlUtil;
+    private InstructionService instructionService;
 
-//    @ApiOperation(value = "编辑 - 手动更新单月结束赛事竞猜结果")
-//    @PostMapping("/test")
-//    public String test(@RequestBody List<Event> eventList){
-//        htmlUtil.allBetEvent(eventList);
-//        return "success";
-//    }
+    @ApiOperation(value = "查询 - 获取待下注指令")
+    @GetMapping("/get")
+    public Response<List<Instruction>> test(){
+        return new Response(instructionService.getByStatus());
+    }
 
 }
 

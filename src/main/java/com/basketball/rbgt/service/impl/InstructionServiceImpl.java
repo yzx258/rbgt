@@ -72,10 +72,10 @@ public class InstructionServiceImpl implements InstructionService {
             instruction.setCreateTime(new Date());
             instruction.setBetStatus(2);
             instruction.setBetNumber(0);
-            instruction.setBetSession(betSession >= 5 ? betSession : betSession - 4);
+            instruction.setBetSession(betSession >= 5 ? betSession - 4 : betSession);
             instruction.setBetTime(DateUtil.getDate(0));
             instructionMapper.insert(instruction);
-            log.info("插入第一节下注指令 - > {},{}", e.getName(), e.getStartTime());
+            log.info("插入第"+betSession+"节下注指令 - > {},{}", e.getName(), e.getStartTime());
         }
     }
 
@@ -141,5 +141,17 @@ public class InstructionServiceImpl implements InstructionService {
             return true;
         }
         return false;
+    }
+
+    /**
+     * 根据状态和时间获取下注指令
+     * @return
+     */
+    @Override
+    public List<Instruction> getByStatus() {
+        QueryWrapper<Instruction> qw = new QueryWrapper<Instruction>();
+        qw.eq("bet_time",DateUtil.getDate(0)).eq("bet_status",1);
+        List<Instruction> is = instructionMapper.selectList(qw);
+        return is;
     }
 }
