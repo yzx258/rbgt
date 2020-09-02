@@ -64,6 +64,6 @@ public class RatioServiceImpl implements RatioService {
         }
         System.out.println(JSON.toJSONString(br));
         log.info("计算倍率区间 ==== 结束");
-        return JSON.toJSONString(br);
+        return JSON.toJSONString(br).replace(".0","");
     }
 }
