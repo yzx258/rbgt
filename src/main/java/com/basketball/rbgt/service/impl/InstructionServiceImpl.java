@@ -71,7 +71,7 @@ public class InstructionServiceImpl implements InstructionService {
                 instruction.setBetSingleOrDouble(2);
             }
             instruction.setCreateTime(new Date());
-            instruction.setBetStatus(2);
+            instruction.setBetStatus(1);
             instruction.setBetNumber(0);
             instruction.setBetSession(betSession >= 5 ? betSession - 4 : betSession);
             instruction.setBetTime(DateUtil.getDate(0));

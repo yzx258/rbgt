@@ -98,6 +98,7 @@ public class HtmlUtil {
         List<Event> collect = event.stream().filter(e -> (e.getType() == 1 || e.getType() == 2)).collect(Collectors.toList());
         // 判断每节是否红单
         for(Event e : collect) {
+            e.setName(e.getName().replace("顿","敦"));
             QueryWrapper<Event> queryWrapper = new QueryWrapper<Event>();
             queryWrapper.eq("name",e.getName()).eq("start_time",e.getStartTime());
             List<Event> es = eventMapper.selectList(queryWrapper);
