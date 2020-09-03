@@ -124,6 +124,7 @@ public class HtmlUtil {
                 }
                 // 下注场次【默认为1】
                 int betSession = 1;
+                String instructionId = null;
                 // 判断第一节
                 if(StringUtils.isNotEmpty(e.getPeriodOne()) && ":".equals(e.getPeriodTow())){
                     // 判断是否已购买
@@ -142,8 +143,12 @@ public class HtmlUtil {
                     if(blackList.size() > 0){
                         log.info("存在黑五场的数据 - > {},{}",blackList.get(0).getBetAtn()+"VS"+blackList.get(0).getBetHtn(),blackList.get(0).getBetTime());
                         betSession = 5;
+                        instructionId = blackList.get(0).getId();
                     }
-                    instructionService.add(es.get(0),e,betSession);
+                    else{
+                        betSession = 1;
+                    }
+                    instructionService.add(es.get(0),e,betSession,instructionId);
                     continue;
                 }
                 else if(!":".equals(e.getPeriodTow()) && ":".equals(e.getPeriodThree())){
@@ -163,8 +168,14 @@ public class HtmlUtil {
                     QueryWrapper<Instruction> qw1 = new QueryWrapper<Instruction>();
                     qw1.eq("bet_htn",event1.getName().split("VS")[0]).eq("bet_time",DateUtil.getDate(0)).eq("bet_session",1).eq("bet_status",4);
                     List<Instruction> is1 = instructionMapper.selectList(qw1);
+                    if(is1.size() == 1 && StringUtils.isNotEmpty(is1.get(0).getInstructionId())){
+                        betSession = 6;
+                        instructionId = is1.get(0).getInstructionId();
+                    }else{
+                        betSession = 2;
+                    }
                     // 第二节
-                    instructionService.add(es.get(0),e,is1.get(0).getBetSession()+1);
+                    instructionService.add(es.get(0),e,betSession,instructionId);
                     continue;
                 }else if(!":".equals(e.getPeriodThree()) && ":".equals(e.getPeriodFour())){
                     // 判断第二节是否红了
@@ -183,8 +194,14 @@ public class HtmlUtil {
                     QueryWrapper<Instruction> qw1 = new QueryWrapper<Instruction>();
                     qw1.eq("bet_htn",event1.getName().split("VS")[0]).eq("bet_time",DateUtil.getDate(0)).eq("bet_session",2).eq("bet_status",4);
                     List<Instruction> is1 = instructionMapper.selectList(qw1);
+                    if(is1.size() == 1 && StringUtils.isNotEmpty(is1.get(0).getInstructionId())){
+                        betSession = 7;
+                        instructionId = is1.get(0).getInstructionId();
+                    }else{
+                        betSession = 3;
+                    }
                     // 第三节
-                    instructionService.add(es.get(0),e,is1.get(0).getBetSession()+1);
+                    instructionService.add(es.get(0),e,betSession,instructionId);
                     continue;
                 }else if(!":".equals(e.getPeriodFour()) && "比赛进行中".equals(e.getOverTimeFive())){
 
@@ -204,8 +221,14 @@ public class HtmlUtil {
                     QueryWrapper<Instruction> qw1 = new QueryWrapper<Instruction>();
                     qw1.eq("bet_htn",event1.getName().split("VS")[0]).eq("bet_time",DateUtil.getDate(0)).eq("bet_session",3).eq("bet_status",4);
                     List<Instruction> is1 = instructionMapper.selectList(qw1);
+                    if(is1.size() == 1 && StringUtils.isNotEmpty(is1.get(0).getInstructionId())){
+                        betSession = 8;
+                        instructionId = is1.get(0).getInstructionId();
+                    }else{
+                        betSession = 4;
+                    }
                     // 新增第四节下注指令
-                    instructionService.add(es.get(0),e,is1.get(0).getBetSession()+1);
+                    instructionService.add(es.get(0),e,betSession,instructionId);
                     continue;
                 }else if(!":".equals(e.getPeriodFour()) && "比赛结束".equals(e.getOverTimeFive())){
                     // 第四节判断，是否全黑

@@ -17,7 +17,7 @@ public interface InstructionService {
      * @param e
      * @param betSession
      */
-    void add(Event event1, Event e,Integer betSession);
+    void add(Event event1, Event e,Integer betSession,String instructionId);
 
     /**
      * 校验支付指令是否红单

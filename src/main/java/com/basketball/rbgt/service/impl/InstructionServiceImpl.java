@@ -12,6 +12,7 @@ import com.basketball.rbgt.service.InstructionService;
 import com.basketball.rbgt.util.DateUtil;
 import com.github.houbb.opencc4j.util.ObjectUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,7 +39,7 @@ public class InstructionServiceImpl implements InstructionService {
      * @param betSession
      */
     @Override
-    public void add(Event event1, Event e,Integer betSession) {
+    public void add(Event event1, Event e,Integer betSession,String instructionId) {
         // 第一节
         Ratio ratio = ratioMapper.selectById("1288129806892171266");
         JSONArray objects = JSON.parseArray(ratio.getBetRange());
@@ -50,6 +51,7 @@ public class InstructionServiceImpl implements InstructionService {
         if ((k1 + k2) > 0) {
             // 正在比赛，插入比赛指令
             Instruction instruction = new Instruction();
+            instruction.setInstructionId(instructionId);
             System.out.println(objects.get(0) + "");
             instruction.setBetAmount(Integer.parseInt(objects.get(betSession-1) + ""));
             instruction.setBetHtn(event1.getName().split("VS")[0]);
@@ -58,7 +60,7 @@ public class InstructionServiceImpl implements InstructionService {
             if(1 == betSession || 5 == betSession){
                 instruction.setBetSessionName("总得分:滚球 单 / 双-第一节");
             }else if(2 == betSession || 6 == betSession){
-                instruction.setBetSessionName("总得分:滚球 单 / 双-第二节");
+                instruction.setBetSessionName("滚球 单 / 双-上半场");
             }else if(3 == betSession || 7 == betSession){
                 instruction.setBetSessionName("总得分:滚球 单 / 双-第三节");
             }else if(4 == betSession || 8 == betSession){
@@ -76,6 +78,11 @@ public class InstructionServiceImpl implements InstructionService {
             instruction.setBetSession(betSession >= 5 ? betSession - 4 : betSession);
             instruction.setBetTime(DateUtil.getDate(0));
             instructionMapper.insert(instruction);
+            if(betSession == 5 && StringUtils.isNotBlank(instructionId)){
+                Instruction instruction1 = instructionMapper.selectById(instructionId);
+                instruction1.setBetStatus(4);
+                instructionMapper.updateById(instruction1);
+            }
             log.info("插入第"+betSession+"节下注指令 - > {},{}", e.getName(), e.getStartTime());
         }
     }

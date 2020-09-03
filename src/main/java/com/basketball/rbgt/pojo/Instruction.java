@@ -99,4 +99,9 @@ public class Instruction implements Serializable {
      */
     private String betTime;
 
+    /**
+     * 携带五黑的支付指令
+     */
+    private String instructionId;
+
 }
