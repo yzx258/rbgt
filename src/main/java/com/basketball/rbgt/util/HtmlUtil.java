@@ -98,7 +98,6 @@ public class HtmlUtil {
         List<Event> collect = event.stream().filter(e -> (e.getType() == 1 || e.getType() == 2)).collect(Collectors.toList());
         // 判断每节是否红单
         for(Event e : collect) {
-            e.setName(e.getName().replace("顿","敦"));
             QueryWrapper<Event> queryWrapper = new QueryWrapper<Event>();
             queryWrapper.eq("name",e.getName()).eq("start_time",e.getStartTime());
             List<Event> es = eventMapper.selectList(queryWrapper);
@@ -117,6 +116,7 @@ public class HtmlUtil {
             if(es.size() == 1)
             {
                 Event event1 = es.get(0);
+                event1.setName(e.getName().replace("顿","敦"));
                 // 判断支付指令是否已红单
                 if(instructionService.checkInstructionRed(event1,e)){
                     log.info("该比赛已红单 -> {},{}",event1.getName(),event1.getStartTime());
