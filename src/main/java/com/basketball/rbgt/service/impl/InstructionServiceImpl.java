@@ -67,11 +67,20 @@ public class InstructionServiceImpl implements InstructionService {
                 instruction.setBetSessionName("总得分:滚球 单 / 双");
             }
             String[] split1 = event1.getQuizResults().split(",");
-            if ("单".equals(split1[0])) {
-                instruction.setBetSingleOrDouble(1);
-            } else {
-                instruction.setBetSingleOrDouble(2);
+            if(betSession >= 5){
+                if ("单".equals(split1[betSession - 5])) {
+                    instruction.setBetSingleOrDouble(1);
+                } else {
+                    instruction.setBetSingleOrDouble(2);
+                }
+            }else{
+                if ("单".equals(split1[betSession-1])) {
+                    instruction.setBetSingleOrDouble(1);
+                } else {
+                    instruction.setBetSingleOrDouble(2);
+                }
             }
+
             instruction.setCreateTime(new Date());
             instruction.setBetStatus(1);
             instruction.setBetNumber(0);
