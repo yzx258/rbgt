@@ -57,30 +57,92 @@ public class InstructionServiceImpl implements InstructionService {
             instruction.setBetHtn(event1.getName().split("VS")[0]);
             instruction.setBetAtn(event1.getName().split("VS")[1]);
             instruction.setBetSession(betSession);
+            String[] split1 = event1.getQuizResults().split(",");
             if(1 == betSession || 5 == betSession){
                 instruction.setBetSessionName("总得分:滚球 单 / 双-第一节");
+                if ("单".equals(split1[0])) {
+                    instruction.setBetSingleOrDouble(1);
+                } else {
+                    instruction.setBetSingleOrDouble(2);
+                }
             }else if(2 == betSession || 6 == betSession){
                 instruction.setBetSessionName("滚球 单 / 双-上半场");
+                if ("单".equals(split1[0]) && "双".equals(split1[1])) {
+                    // 上半场总和双
+                    instruction.setBetSingleOrDouble(2);
+                } else if("单".equals(split1[0]) && "单".equals(split1[1])){
+                    // 上半场总和单
+                    instruction.setBetSingleOrDouble(1);
+                } else if("双".equals(split1[0]) && "双".equals(split1[1])){
+                    // 上半场总和单
+                    instruction.setBetSingleOrDouble(1);
+                } else if("双".equals(split1[0]) && "单".equals(split1[1])){
+                    // 上半场总和双
+                    instruction.setBetSingleOrDouble(2);
+                }else {
+                    instruction.setBetSingleOrDouble(1);
+                }
             }else if(3 == betSession || 7 == betSession){
                 instruction.setBetSessionName("总得分:滚球 单 / 双-第三节");
+                if ("单".equals(split1[2])) {
+                    instruction.setBetSingleOrDouble(1);
+                } else {
+                    instruction.setBetSingleOrDouble(2);
+                }
             }else if(4 == betSession || 8 == betSession){
                 instruction.setBetSessionName("总得分:滚球 单 / 双");
-            }
-            String[] split1 = event1.getQuizResults().split(",");
-            if(betSession >= 5){
-                if ("单".equals(split1[betSession - 5])) {
+                if ("单".equals(split1[0]) && "单".equals(split1[1]) && "单".equals(split1[2]) && "单".equals(split1[3])) {
+                    // 总和单
                     instruction.setBetSingleOrDouble(1);
-                } else {
+                } else if("双".equals(split1[0]) && "单".equals(split1[1]) && "单".equals(split1[2]) && "单".equals(split1[3])){
+                    // 总和双
                     instruction.setBetSingleOrDouble(2);
-                }
-            }else{
-                if ("单".equals(split1[betSession-1])) {
+                } else if("单".equals(split1[0]) && "双".equals(split1[1]) && "单".equals(split1[2]) && "单".equals(split1[3])){
+                    // 总和双
+                    instruction.setBetSingleOrDouble(2);
+                } else if("双".equals(split1[0]) && "双".equals(split1[1]) && "单".equals(split1[2]) && "单".equals(split1[3])){
+                    // 总和双
                     instruction.setBetSingleOrDouble(1);
-                } else {
+                }if ("单".equals(split1[0]) && "单".equals(split1[1]) && "双".equals(split1[2]) && "单".equals(split1[3])) {
+                    // 总和单
                     instruction.setBetSingleOrDouble(2);
+                } else if("双".equals(split1[0]) && "单".equals(split1[1]) && "双".equals(split1[2]) && "单".equals(split1[3])){
+                    // 总和双
+                    instruction.setBetSingleOrDouble(1);
+                } else if("单".equals(split1[0]) && "双".equals(split1[1]) && "双".equals(split1[2]) && "单".equals(split1[3])){
+                    // 总和双
+                    instruction.setBetSingleOrDouble(1);
+                } else if("双".equals(split1[0]) && "双".equals(split1[1]) && "双".equals(split1[2]) && "单".equals(split1[3])){
+                    // 总和双
+                    instruction.setBetSingleOrDouble(2);
+                }else if ("单".equals(split1[0]) && "单".equals(split1[1]) && "单".equals(split1[2]) && "双".equals(split1[3])) {
+                    // 总和单
+                    instruction.setBetSingleOrDouble(2);
+                } else if("双".equals(split1[0]) && "单".equals(split1[1]) && "单".equals(split1[2]) && "双".equals(split1[3])){
+                    // 总和双
+                    instruction.setBetSingleOrDouble(1);
+                } else if("单".equals(split1[0]) && "双".equals(split1[1]) && "单".equals(split1[2]) && "双".equals(split1[3])){
+                    // 总和双
+                    instruction.setBetSingleOrDouble(1);
+                } else if("双".equals(split1[0]) && "双".equals(split1[1]) && "单".equals(split1[2]) && "双".equals(split1[3])){
+                    // 总和双
+                    instruction.setBetSingleOrDouble(2);
+                }if ("单".equals(split1[0]) && "单".equals(split1[1]) && "双".equals(split1[2]) && "双".equals(split1[3])) {
+                    // 总和单
+                    instruction.setBetSingleOrDouble(1);
+                } else if("双".equals(split1[0]) && "单".equals(split1[1]) && "双".equals(split1[2]) && "双".equals(split1[3])){
+                    // 总和双
+                    instruction.setBetSingleOrDouble(2);
+                } else if("单".equals(split1[0]) && "双".equals(split1[1]) && "双".equals(split1[2]) && "双".equals(split1[3])){
+                    // 总和双
+                    instruction.setBetSingleOrDouble(2);
+                } else if("双".equals(split1[0]) && "双".equals(split1[1]) && "双".equals(split1[2]) && "双".equals(split1[3])){
+                    // 总和双
+                    instruction.setBetSingleOrDouble(1);
+                }else{
+                    instruction.setBetSingleOrDouble(1);
                 }
             }
-
             instruction.setCreateTime(new Date());
             instruction.setBetStatus(1);
             instruction.setBetNumber(0);
