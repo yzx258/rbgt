@@ -189,7 +189,7 @@ public class InstructionServiceImpl implements InstructionService {
         List<Instruction> is = instructionMapper.selectList(qw);
         if(is.size() == 1){
             Instruction instruction = is.get(0);
-            if(ds.equals(splitb[betSession >= 5 ? betSession-4 : betSession])){
+            if(ds.equals(splitb[betSession >= 5 ? betSession-5 : betSession-1])){
                 // 更新第一节的下注指令
                 instruction.setBetStatus(3);
                 instructionMapper.updateById(instruction);
