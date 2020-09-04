@@ -75,7 +75,7 @@ public class Instruction implements Serializable {
     private String betSessionName;
 
     /**
-     * 下注状态：1：需要购买；2：已购买；3：已红单；4：已黑单；5：四节全黑
+     * 下注状态：1：需要购买；2：已购买；3：已红单[携带备注，说明下注次数过多]；4：已黑单；5：四节全黑
      */
     private Integer betStatus;
 
@@ -103,5 +103,10 @@ public class Instruction implements Serializable {
      * 携带五黑的支付指令
      */
     private String instructionId;
+
+    /**
+     * 备注
+     */
+    private String note;
 
 }
