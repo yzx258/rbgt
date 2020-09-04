@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -230,8 +231,10 @@ public class InstructionServiceImpl implements InstructionService {
     public List<Instruction> getByStatus() {
         QueryWrapper<Instruction> qw = new QueryWrapper<Instruction>();
         qw.eq("bet_time",DateUtil.getDate(0)).eq("bet_status",1);
-        List<Instruction> is = instructionMapper.selectList(qw);
-        return is;
+        List<Instruction> list = new ArrayList<>();
+        Instruction is = instructionMapper.selectOne(qw);
+        list.add(is);
+        return list;
     }
 
     /**
