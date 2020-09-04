@@ -4,10 +4,13 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONAware;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.basketball.rbgt.mapper.EventMapper;
+import com.basketball.rbgt.mapper.InstructionMapper;
 import com.basketball.rbgt.mapper.ReportMapper;
 import com.basketball.rbgt.pojo.Event;
+import com.basketball.rbgt.pojo.Instruction;
 import com.basketball.rbgt.pojo.Report;
 import com.basketball.rbgt.util.DateUtil;
+import com.basketball.rbgt.util.DingUtil;
 import com.basketball.rbgt.util.HtmlUtil;
 import com.basketball.rbgt.util.QuizResultsUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +37,10 @@ public class TaskUtil {
     private EventMapper eventMapper;
     @Autowired
     private ReportMapper reportMapper;
+    @Autowired
+    private InstructionMapper instructionMapper;
+    @Autowired
+    private DingUtil dingUtil;
     /**
      * 常量
      */
@@ -152,5 +159,22 @@ public class TaskUtil {
         b.setMonth(month);
         b.setQuizType(0);
         reportMapper.insert(b);
+    }
+
+    /**
+     * 描述：异步获取报表信息
+
+     */
+    @Async("myTaskAsyncPool")
+    public void sendDing()
+    {
+        QueryWrapper<Instruction> qw = new QueryWrapper<Instruction>();
+        qw.eq("bet_time", DateUtil.getDate(0)).eq("bet_status", 3);
+        List<Instruction> is = instructionMapper.selectList(qw);
+        QueryWrapper<Instruction> qw1 = new QueryWrapper<Instruction>();
+        qw.eq("bet_time", DateUtil.getDate(0)).eq("bet_status", 5);
+        List<Instruction> is1 = instructionMapper.selectList(qw);
+        String mssages = "\\rBS : "+is.size()+" 场; HL : "+(is.size()*10)+" 元\\rQH : "+is1.size()+" 场; QH : "+(is.size()*2300)+" 元";
+        dingUtil.sendMassage(mssages);
     }
 }
