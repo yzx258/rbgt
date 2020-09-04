@@ -116,7 +116,7 @@ public class HtmlUtil {
             if(es.size() == 1)
             {
                 Event event1 = es.get(0);
-                event1.setName(e.getName().replace("顿","敦"));
+                event1.setName(e.getName().replace("休斯顿火箭","休斯敦火箭"));
                 // 判断支付指令是否已红单
                 if(instructionService.checkInstructionRed(event1,e)){
                     log.info("该比赛已红单 -> {},{}",event1.getName(),event1.getStartTime());
