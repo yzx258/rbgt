@@ -65,7 +65,7 @@ public class InstructionServiceImpl implements InstructionService {
             instruction.setBetAtn(event1.getName().split("VS")[1]);
             instruction.setBetSession(betSession);
             String[] split1 = event1.getQuizResults().split(",");
-            if (1 == betSession || 5 == betSession) {
+            if (1 == betSession || 5 == betSession || 9 == betSession) {
                 instruction.setBetSessionName("总得分:滚球 单 / 双-第一节");
                 if ("单".equals(split1[0])) {
                     instruction.setBetSingleOrDouble(1);
@@ -161,7 +161,13 @@ public class InstructionServiceImpl implements InstructionService {
                 instruction.setBetStatus(1);
             }
             instruction.setBetNumber(0);
-            instruction.setBetSession(betSession >= 5 ? betSession - 4 : betSession);
+            if(betSession >= 5 && betSession <= 8){
+                instruction.setBetSession(betSession - 4);
+            }else if (betSession >= 9){
+                instruction.setBetSession(betSession - 8);
+            }else{
+                instruction.setBetSession(betSession);
+            }
             instruction.setBetTime(DateUtil.getDate(0));
             instructionMapper.insert(instruction);
             if (betSession == 5 && StringUtils.isNotBlank(instructionId)) {
