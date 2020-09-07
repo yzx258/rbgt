@@ -153,7 +153,13 @@ public class InstructionServiceImpl implements InstructionService {
                 }
             }
             instruction.setCreateTime(new Date());
-            instruction.setBetStatus(1);
+            // 第二节直接黑
+            instruction.setBetStatus(4);
+            if (2 == betSession || 6 == betSession) {
+                instruction.setBetStatus(4);
+            }else{
+                instruction.setBetStatus(1);
+            }
             instruction.setBetNumber(0);
             instruction.setBetSession(betSession >= 5 ? betSession - 4 : betSession);
             instruction.setBetTime(DateUtil.getDate(0));

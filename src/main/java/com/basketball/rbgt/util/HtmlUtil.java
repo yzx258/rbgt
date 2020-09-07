@@ -95,7 +95,7 @@ public class HtmlUtil {
         // 解析出来的数据对象
         List<Event> event = getBetEvent(htmlPage,ctime);
         // 过滤数据【只包含：CBA和NBA赛事】
-        List<Event> collect = event.stream().filter(e -> (e.getType() == 1 || e.getType() == 2)).collect(Collectors.toList());
+        List<Event> collect = event.stream().filter(e -> (e.getType() == 1 || e.getType() == 2 || e.getType() == 3)).collect(Collectors.toList());
         // 判断每节是否红单
         for(Event e : collect) {
             QueryWrapper<Event> queryWrapper = new QueryWrapper<Event>();

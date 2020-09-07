@@ -174,7 +174,7 @@ public class TaskUtil {
         QueryWrapper<Instruction> qw1 = new QueryWrapper<Instruction>();
         qw.eq("bet_time", DateUtil.getDate(0)).eq("bet_status", 5);
         List<Instruction> is1 = instructionMapper.selectList(qw);
-        String mssages = "\\rBS : "+is.size()+" 场; HL : "+(is.size()*10)+" 元\\rQH : "+is1.size()+" 场; QH : "+(is.size()*2300)+" 元";
+        String mssages = "\\rBSCC : "+is.size()+" 场; HLJE : "+(is.size()*10)+" 元\\rQHCC : "+is1.size()+" 场; QHJE : "+(is1.size()*124)+" 元";
         dingUtil.sendMassage(mssages);
     }
 }
