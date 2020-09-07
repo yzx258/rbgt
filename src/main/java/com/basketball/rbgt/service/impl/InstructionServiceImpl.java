@@ -156,7 +156,7 @@ public class InstructionServiceImpl implements InstructionService {
             // 第二节直接黑
             instruction.setBetStatus(4);
             if (2 == betSession || 6 == betSession) {
-                instruction.setBetStatus(4);
+                instruction.setBetStatus(2);
             }else{
                 instruction.setBetStatus(1);
             }
@@ -182,6 +182,10 @@ public class InstructionServiceImpl implements InstructionService {
      */
     @Override
     public Boolean checkInstruction(Event event1, Event e, Integer betSession) {
+        // 第二节直接黑
+        if(betSession == 2 || betSession == 6){
+            return false;
+        }
         int k1, k2 = 0;
         String[] splitf = null;
         if (betSession == 1 || betSession == 5) {
