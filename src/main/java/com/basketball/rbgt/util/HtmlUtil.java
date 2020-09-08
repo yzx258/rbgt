@@ -1,6 +1,5 @@
 package com.basketball.rbgt.util;
 
-import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -142,18 +141,9 @@ public class HtmlUtil {
                     black.eq("bet_status",5);
                     List<Instruction> blackList = instructionMapper.selectList(black);
                     if(blackList.size() > 0){
-                        QueryWrapper<Instruction> black1 = new QueryWrapper<Instruction>();
-                        black1.eq("bet_status",6);
-                        List<Instruction> blackList1 = instructionMapper.selectList(black);
-                        if(blackList.size() > 0){
-                            log.info("存在黑五场的数据 - > {},{}",blackList.get(0).getBetAtn()+"VS"+blackList.get(0).getBetHtn(),blackList.get(0).getBetTime());
-                            betSession = 9;
-                            instructionId = blackList1.get(0).getId();
-                        }else{
-                            log.info("存在黑五场的数据 - > {},{}",blackList.get(0).getBetAtn()+"VS"+blackList.get(0).getBetHtn(),blackList.get(0).getBetTime());
-                            betSession = 5;
-                            instructionId = blackList.get(0).getId();
-                        }
+                        log.info("存在黑五场的数据 - > {},{}",blackList.get(0).getBetAtn()+"VS"+blackList.get(0).getBetHtn(),blackList.get(0).getBetTime());
+                        betSession = 5;
+                        instructionId = blackList.get(0).getId();
                     }
                     else{
                         betSession = 1;
@@ -273,12 +263,8 @@ public class HtmlUtil {
                             instructionMapper.updateById(instruction);
                             continue;
                         }else{
-                            // 判断是否连续俩场都黑
-                            if(StrUtil.isNotBlank(instruction.getInstructionId())){
-                                instruction.setBetStatus(6);
-                            }else{
-                                instruction.setBetStatus(5);
-                            }
+                            // 更新第四节的下注指令
+                            instruction.setBetStatus(5);
                             instructionMapper.updateById(instruction);
                         }
                     }

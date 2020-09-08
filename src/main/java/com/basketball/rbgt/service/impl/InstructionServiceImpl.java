@@ -13,6 +13,7 @@ import com.basketball.rbgt.pojo.Ratio;
 import com.basketball.rbgt.pojo.dto.InstructionDTO;
 import com.basketball.rbgt.service.InstructionService;
 import com.basketball.rbgt.util.DateUtil;
+import com.basketball.rbgt.util.DingUtil;
 import com.github.houbb.opencc4j.util.CollectionUtil;
 import com.github.houbb.opencc4j.util.ObjectUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -67,7 +68,7 @@ public class InstructionServiceImpl implements InstructionService {
             instruction.setBetAtn(event1.getName().split("VS")[1]);
             instruction.setBetSession(betSession);
             String[] split1 = event1.getQuizResults().split(",");
-            if (1 == betSession || 5 == betSession || 9 == betSession) {
+            if (1 == betSession || 5 == betSession) {
                 instruction.setBetSessionName("总得分:滚球 单 / 双-第一节");
                 if ("单".equals(split1[0])) {
                     instruction.setBetSingleOrDouble(1);
@@ -75,7 +76,7 @@ public class InstructionServiceImpl implements InstructionService {
                     instruction.setBetSingleOrDouble(2);
                 }
             } else if (2 == betSession || 6 == betSession) {
-                instruction.setBetSessionName("滚球 单 / 双-上半场");
+                instruction.setBetSessionName("总得分:滚球 单 / 双-上半场");
                 if ("单".equals(split1[0]) && "双".equals(split1[1])) {
                     // 上半场总和双
                     instruction.setBetSingleOrDouble(2);
@@ -155,21 +156,9 @@ public class InstructionServiceImpl implements InstructionService {
                 }
             }
             instruction.setCreateTime(new Date());
-            // 第二节直接黑
-            instruction.setBetStatus(4);
-            if (2 == betSession || 6 == betSession || 10 == betSession) {
-                instruction.setBetStatus(2);
-            }else{
-                instruction.setBetStatus(1);
-            }
+            instruction.setBetStatus(1);
             instruction.setBetNumber(0);
-            if(betSession >= 5 && betSession <= 8){
-                instruction.setBetSession(betSession - 4);
-            }else if (betSession >= 9){
-                instruction.setBetSession(betSession - 8);
-            }else{
-                instruction.setBetSession(betSession);
-            }
+            instruction.setBetSession(betSession >= 5 ? betSession - 4 : betSession);
             instruction.setBetTime(DateUtil.getDate(0));
             instructionMapper.insert(instruction);
             if (betSession == 5 && StringUtils.isNotBlank(instructionId)) {
@@ -190,10 +179,6 @@ public class InstructionServiceImpl implements InstructionService {
      */
     @Override
     public Boolean checkInstruction(Event event1, Event e, Integer betSession) {
-        // 第二节直接黑
-        if(betSession == 2 || betSession == 6 || betSession == 10){
-            return false;
-        }
         int k1, k2 = 0;
         String[] splitf = null;
         if (betSession == 1 || betSession == 5) {
@@ -265,12 +250,14 @@ public class InstructionServiceImpl implements InstructionService {
         if (!CollectionUtil.isEmpty(is)) {
             String fc = fifoCache.get(is.get(0).getId());
             System.out.println("我是查询出来的缓存：" + fc);
-            if (StrUtil.isNotBlank(fc) && Integer.parseInt(fc) == 5) {
+            if (StrUtil.isNotBlank(fc) && Integer.parseInt(fc) == 6) {
                 Instruction instruction = is.get(0);
-                instruction.setBetStatus(3);
-                instruction.setNote("下注次数，超过五次，停止下注");
+                instruction.setBetStatus(4);
+                instruction.setNote("下注次数，超过六次，停止下注");
                 instructionMapper.updateById(instruction);
                 fifoCache.remove(is.get(0).getId());
+                DingUtil d = new DingUtil();
+                d.sendMassage("["+instruction.getBetHtn()+" VS "+instruction.getBetAtn()+"] 下注次数，超过六次，停止下注");
             } else {
                 fc = fc == null ? "0" : fc;
                 fifoCache.put(is.get(0).getId(), (Integer.parseInt(fc)+1)+"");
@@ -280,38 +267,6 @@ public class InstructionServiceImpl implements InstructionService {
             }
         }
         return new ArrayList<>();
-    }
-
-    @Override
-    public List<InstructionDTO> getToday() {
-        QueryWrapper<Instruction> qw = new QueryWrapper<Instruction>();
-        qw.eq("bet_time", DateUtil.getDate(0));
-        List<Instruction> is = instructionMapper.selectList(qw);
-        if(CollectionUtil.isEmpty(is)){
-            return null;
-        }
-        List<InstructionDTO> list = new ArrayList<>();
-        // 去重的数据
-        List<String> collect = is.stream().map(Instruction::getBetAtn).collect(Collectors.toList()).stream().distinct().collect(Collectors.toList());
-        // 将数据复制至DTO里
-        for(String str : collect){
-            List<Instruction> li = new ArrayList<>();
-            InstructionDTO instructionDTO = new InstructionDTO();
-            is.stream().forEach(i -> {
-                if(str.equals(i.getBetAtn()))
-                li.add(i);
-            });
-            instructionDTO.setList(li);
-            list.add(instructionDTO);
-        }
-        // 手动设置数据
-        list.stream().forEach(l -> {
-            l.setBetAtn(l.getList().get(0).getBetAtn());
-            l.setBetHtn(l.getList().get(0).getBetHtn());
-            l.setBetSession(l.getList().size());
-            l.setBetStatus(l.getList().stream().filter(in -> (in.getBetStatus()==3)).collect(Collectors.toList()).size());
-        });
-        return list;
     }
 
     /**
@@ -346,5 +301,37 @@ public class InstructionServiceImpl implements InstructionService {
             // 更新支付指令为已购买
             instructionMapper.updateById(instruction);
         }
+    }
+
+    @Override
+    public List<InstructionDTO> getToday() {
+        QueryWrapper<Instruction> qw = new QueryWrapper<Instruction>();
+        qw.eq("bet_time", DateUtil.getDate(0));
+        List<Instruction> is = instructionMapper.selectList(qw);
+        if(CollectionUtil.isEmpty(is)){
+            return null;
+        }
+        List<InstructionDTO> list = new ArrayList<>();
+        // 去重的数据
+        List<String> collect = is.stream().map(Instruction::getBetAtn).collect(Collectors.toList()).stream().distinct().collect(Collectors.toList());
+        // 将数据复制至DTO里
+        for(String str : collect){
+            List<Instruction> li = new ArrayList<>();
+            InstructionDTO instructionDTO = new InstructionDTO();
+            is.stream().forEach(i -> {
+                if(str.equals(i.getBetAtn()))
+                    li.add(i);
+            });
+            instructionDTO.setList(li);
+            list.add(instructionDTO);
+        }
+        // 手动设置数据
+        list.stream().forEach(l -> {
+            l.setBetAtn(l.getList().get(0).getBetAtn());
+            l.setBetHtn(l.getList().get(0).getBetHtn());
+            l.setBetSession(l.getList().size());
+            l.setBetStatus(l.getList().stream().filter(in -> (in.getBetStatus()==3)).collect(Collectors.toList()).size());
+        });
+        return list;
     }
 }
