@@ -10,6 +10,7 @@ import com.basketball.rbgt.mapper.RatioMapper;
 import com.basketball.rbgt.pojo.Event;
 import com.basketball.rbgt.pojo.Instruction;
 import com.basketball.rbgt.pojo.Ratio;
+import com.basketball.rbgt.pojo.dto.InstructionDTO;
 import com.basketball.rbgt.service.InstructionService;
 import com.basketball.rbgt.util.DateUtil;
 import com.github.houbb.opencc4j.util.CollectionUtil;
@@ -23,6 +24,7 @@ import cn.hutool.cache.Cache;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author 俞春旺
@@ -155,7 +157,7 @@ public class InstructionServiceImpl implements InstructionService {
             instruction.setCreateTime(new Date());
             // 第二节直接黑
             instruction.setBetStatus(4);
-            if (2 == betSession || 6 == betSession) {
+            if (2 == betSession || 6 == betSession || 10 == betSession) {
                 instruction.setBetStatus(2);
             }else{
                 instruction.setBetStatus(1);
@@ -189,7 +191,7 @@ public class InstructionServiceImpl implements InstructionService {
     @Override
     public Boolean checkInstruction(Event event1, Event e, Integer betSession) {
         // 第二节直接黑
-        if(betSession == 2 || betSession == 6){
+        if(betSession == 2 || betSession == 6 || betSession == 10){
             return false;
         }
         int k1, k2 = 0;
@@ -278,6 +280,38 @@ public class InstructionServiceImpl implements InstructionService {
             }
         }
         return new ArrayList<>();
+    }
+
+    @Override
+    public List<InstructionDTO> getToday() {
+        QueryWrapper<Instruction> qw = new QueryWrapper<Instruction>();
+        qw.eq("bet_time", DateUtil.getDate(0));
+        List<Instruction> is = instructionMapper.selectList(qw);
+        if(CollectionUtil.isEmpty(is)){
+            return null;
+        }
+        List<InstructionDTO> list = new ArrayList<>();
+        // 去重的数据
+        List<String> collect = is.stream().map(Instruction::getBetAtn).collect(Collectors.toList()).stream().distinct().collect(Collectors.toList());
+        // 将数据复制至DTO里
+        for(String str : collect){
+            List<Instruction> li = new ArrayList<>();
+            InstructionDTO instructionDTO = new InstructionDTO();
+            is.stream().forEach(i -> {
+                if(str.equals(i.getBetAtn()))
+                li.add(i);
+            });
+            instructionDTO.setList(li);
+            list.add(instructionDTO);
+        }
+        // 手动设置数据
+        list.stream().forEach(l -> {
+            l.setBetAtn(l.getList().get(0).getBetAtn());
+            l.setBetHtn(l.getList().get(0).getBetHtn());
+            l.setBetSession(l.getList().size());
+            l.setBetStatus(l.getList().stream().filter(in -> (in.getBetStatus()==3)).collect(Collectors.toList()).size());
+        });
+        return list;
     }
 
     /**

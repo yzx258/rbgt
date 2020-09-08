@@ -36,6 +36,12 @@ public class InstructionController {
         return new Response(instructionService.getByStatus());
     }
 
+    @ApiOperation(value = "查询 - 获取待下注指令")
+    @GetMapping("/get/today")
+    public Response<List<Instruction>> getToday(){
+        return new Response(instructionService.getToday());
+    }
+
     @ApiOperation(value = "更新 - 失败下注指令")
     @GetMapping("/update/error/{id}")
     public Response updateError(@PathVariable("id") String id){

@@ -3,6 +3,7 @@ package com.basketball.rbgt.service;
 import com.basketball.rbgt.pojo.Event;
 import com.basketball.rbgt.pojo.Instruction;
 import com.basketball.rbgt.pojo.Ratio;
+import com.basketball.rbgt.pojo.dto.InstructionDTO;
 
 import java.util.List;
 
@@ -41,6 +42,12 @@ public interface InstructionService {
      * @return
      */
     List<Instruction> getByStatus();
+
+    /**
+     * 根据状态和时间获取下注指令
+     * @return
+     */
+    List<InstructionDTO> getToday();
 
     /**
      * 更新下注失败赛事
