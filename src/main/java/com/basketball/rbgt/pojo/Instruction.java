@@ -105,6 +105,11 @@ public class Instruction implements Serializable {
     private String instructionId;
 
     /**
+     * 下注次数，1/2/3/4/5/6/7/8
+     */
+    private Integer betSessionNumber;
+
+    /**
      * 备注
      */
     private String note;

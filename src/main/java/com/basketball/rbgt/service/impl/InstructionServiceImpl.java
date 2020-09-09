@@ -62,11 +62,10 @@ public class InstructionServiceImpl implements InstructionService {
             // 正在比赛，插入比赛指令
             Instruction instruction = new Instruction();
             instruction.setInstructionId(instructionId);
-            System.out.println(objects.get(0) + "");
+            instruction.setBetSessionNumber(betSession);
             instruction.setBetAmount(Integer.parseInt(objects.get(betSession - 1) + ""));
             instruction.setBetHtn(event1.getName().split("VS")[0]);
             instruction.setBetAtn(event1.getName().split("VS")[1]);
-            instruction.setBetSession(betSession);
             String[] split1 = event1.getQuizResults().split(",");
             if (1 == betSession || 5 == betSession) {
                 instruction.setBetSessionName("总得分:滚球 单 / 双-第一节");
