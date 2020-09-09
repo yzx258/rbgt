@@ -202,7 +202,8 @@ public class InstructionServiceImpl implements InstructionService {
         List<Instruction> is = instructionMapper.selectList(qw);
         if (is.size() == 1) {
             Instruction instruction = is.get(0);
-            if (ds.equals(splitb[betSession >= 5 ? betSession - 5 : betSession - 1])) {
+            log.info("我是对比单双数据 -> {},{}",betSession,pd(splitb,betSession));
+            if (ds.equals(pd(splitb,betSession))) {
                 // 更新第一节的下注指令
                 instruction.setBetStatus(3);
                 instructionMapper.updateById(instruction);
@@ -216,6 +217,97 @@ public class InstructionServiceImpl implements InstructionService {
         } else {
             return false;
         }
+    }
+
+    /**
+     * 判断单双
+     * @param split1
+     * @param betSession
+     * @return
+     */
+    private String pd(String[] split1,int betSession){
+        if (1 == betSession || 5 == betSession) {
+            if ("单".equals(split1[0])) {
+                return "单";
+            } else {
+                return "双";
+            }
+        } else if (2 == betSession || 6 == betSession) {
+            if ("单".equals(split1[0]) && "双".equals(split1[1])) {
+                // 上半场总和双
+                return "双";
+            } else if ("单".equals(split1[0]) && "单".equals(split1[1])) {
+                // 上半场总和单
+                return "单";
+            } else if ("双".equals(split1[0]) && "双".equals(split1[1])) {
+                // 上半场总和单
+                return "单";
+            } else if ("双".equals(split1[0]) && "单".equals(split1[1])) {
+                // 上半场总和双
+                return "双";
+            } else {
+                return "单";
+            }
+        } else if (3 == betSession || 7 == betSession) {
+            if ("单".equals(split1[2])) {
+                return "单";
+            } else {
+                return "双";
+            }
+        } else if (4 == betSession || 8 == betSession) {
+            if ("单".equals(split1[0]) && "单".equals(split1[1]) && "单".equals(split1[2]) && "单".equals(split1[3])) {
+                // 总和单
+                return "单";
+            } else if ("双".equals(split1[0]) && "单".equals(split1[1]) && "单".equals(split1[2]) && "单".equals(split1[3])) {
+                // 总和双
+                return "双";
+            } else if ("单".equals(split1[0]) && "双".equals(split1[1]) && "单".equals(split1[2]) && "单".equals(split1[3])) {
+                // 总和双
+                return "双";
+            } else if ("双".equals(split1[0]) && "双".equals(split1[1]) && "单".equals(split1[2]) && "单".equals(split1[3])) {
+                // 总和双
+                return "单";
+            }
+            if ("单".equals(split1[0]) && "单".equals(split1[1]) && "双".equals(split1[2]) && "单".equals(split1[3])) {
+                // 总和单
+                return "双";
+            } else if ("双".equals(split1[0]) && "单".equals(split1[1]) && "双".equals(split1[2]) && "单".equals(split1[3])) {
+                // 总和双
+                return "单";
+            } else if ("单".equals(split1[0]) && "双".equals(split1[1]) && "双".equals(split1[2]) && "单".equals(split1[3])) {
+                // 总和双
+                return "单";
+            } else if ("双".equals(split1[0]) && "双".equals(split1[1]) && "双".equals(split1[2]) && "单".equals(split1[3])) {
+                // 总和双
+                return "双";
+            } else if ("单".equals(split1[0]) && "单".equals(split1[1]) && "单".equals(split1[2]) && "双".equals(split1[3])) {
+                // 总和单
+                return "双";
+            } else if ("双".equals(split1[0]) && "单".equals(split1[1]) && "单".equals(split1[2]) && "双".equals(split1[3])) {
+                // 总和双
+                return "单";
+            } else if ("单".equals(split1[0]) && "双".equals(split1[1]) && "单".equals(split1[2]) && "双".equals(split1[3])) {
+                // 总和双
+                return "单";
+            } else if ("双".equals(split1[0]) && "双".equals(split1[1]) && "单".equals(split1[2]) && "双".equals(split1[3])) {
+                // 总和双
+                return "双";
+            }
+            if ("单".equals(split1[0]) && "单".equals(split1[1]) && "双".equals(split1[2]) && "双".equals(split1[3])) {
+                // 总和单
+                return "单";
+            } else if ("双".equals(split1[0]) && "单".equals(split1[1]) && "双".equals(split1[2]) && "双".equals(split1[3])) {
+                // 总和双
+                return "双";
+            } else if ("单".equals(split1[0]) && "双".equals(split1[1]) && "双".equals(split1[2]) && "双".equals(split1[3])) {
+                // 总和双
+                return "双";
+            } else if ("双".equals(split1[0]) && "双".equals(split1[1]) && "双".equals(split1[2]) && "双".equals(split1[3])) {
+                // 总和双
+                return "单";
+            }
+        }
+        return "单";
     }
 
     /**
