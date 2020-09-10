@@ -427,7 +427,7 @@ public class InstructionServiceImpl implements InstructionService {
     @Override
     public List<InstructionDTO> getToday() {
         QueryWrapper<Instruction> qw = new QueryWrapper<Instruction>();
-        qw.eq("bet_time", DateUtil.getDate(0));
+        qw.eq("bet_time", DateUtil.getDate(0)).orderByAsc("create_time");
         List<Instruction> is = instructionMapper.selectList(qw);
         if(CollectionUtil.isEmpty(is)){
             return null;
@@ -451,7 +451,72 @@ public class InstructionServiceImpl implements InstructionService {
             l.setBetAtn(l.getList().get(0).getBetAtn());
             l.setBetHtn(l.getList().get(0).getBetHtn());
             l.setBetSession(l.getList().size());
-            l.setBetStatus(l.getList().stream().filter(in -> (in.getBetStatus()==3)).collect(Collectors.toList()).size());
+            if(l.getList().size() == 1){
+                if(l.getList().get(0).getBetStatus() == 1){
+                    l.setBetStatusName("未下注");
+                    l.getList().get(0).setInstructionId("未下注");
+                }else if(l.getList().get(0).getBetStatus() == 2){
+                    l.setBetStatusName("已下注");
+                    l.getList().get(0).setInstructionId("已下注");
+                }else if(l.getList().get(0).getBetStatus() == 3){
+                    l.setBetStatusName("红");
+                    l.getList().get(0).setInstructionId("红");
+                }else{
+                    l.setBetStatusName("黑");
+                    l.getList().get(0).setInstructionId("黑");
+                }
+            }
+            if(l.getList().size() == 2){
+                l.getList().get(0).setInstructionId("黑");
+                if(l.getList().get(1).getBetStatus() == 1){
+                    l.setBetStatusName("未下注");
+                    l.getList().get(1).setInstructionId("未下注");
+                }else if(l.getList().get(1).getBetStatus() == 2){
+                    l.setBetStatusName("已下注");
+                    l.getList().get(1).setInstructionId("已下注");
+                }else if(l.getList().get(1).getBetStatus() == 3){
+                    l.setBetStatusName("红");
+                    l.getList().get(1).setInstructionId("红");
+                }else{
+                    l.setBetStatusName("黑");
+                    l.getList().get(1).setInstructionId("黑");
+                }
+            }
+            if(l.getList().size() == 3){
+                l.getList().get(0).setInstructionId("黑");
+                l.getList().get(1).setInstructionId("黑");
+                if(l.getList().get(2).getBetStatus() == 1){
+                    l.setBetStatusName("未下注");
+                    l.getList().get(2).setInstructionId("未下注");
+                }else if(l.getList().get(2).getBetStatus() == 2){
+                    l.setBetStatusName("已下注");
+                    l.getList().get(2).setInstructionId("已下注");
+                }else if(l.getList().get(2).getBetStatus() == 3){
+                    l.setBetStatusName("红");
+                    l.getList().get(2).setInstructionId("红");
+                }else{
+                    l.setBetStatusName("黑");
+                    l.getList().get(2).setInstructionId("黑");
+                }
+            }
+            if(l.getList().size() == 4){
+                l.getList().get(0).setInstructionId("黑");
+                l.getList().get(1).setInstructionId("黑");
+                l.getList().get(2).setInstructionId("黑");
+                if(l.getList().get(3).getBetStatus() == 1){
+                    l.setBetStatusName("未下注");
+                    l.getList().get(3).setInstructionId("未下注");
+                }else if(l.getList().get(3).getBetStatus() == 2){
+                    l.setBetStatusName("已下注");
+                    l.getList().get(3).setInstructionId("已下注");
+                }else if(l.getList().get(3).getBetStatus() == 3){
+                    l.setBetStatusName("红");
+                    l.getList().get(3).setInstructionId("红");
+                }else{
+                    l.setBetStatusName("黑");
+                    l.getList().get(3).setInstructionId("黑");
+                }
+            }
         });
         return list;
     }

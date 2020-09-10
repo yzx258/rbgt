@@ -33,7 +33,7 @@ public class InstructionDTO {
      * 下注状态：1：需要购买；2：已购买；3：已红单[携带备注，说明下注次数过多]；4：已黑单；5：四节全黑
      */
     @ApiModelProperty(value = "总的下注状态")
-    private Integer betStatus;
+    private String betStatusName;
 
     /**
      * 下注场次：1：第一节；2：第二节；3：第三节；4：第四节
