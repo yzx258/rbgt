@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 
 /**
  * Created by xuyh at 2017/11/6 14:03.
+ *
  * @author yiautos
  */
 @Component
@@ -61,199 +62,198 @@ public class HtmlUtil {
 
     /**
      * 描述：获取全部赛事信息
+     *
      * @param ctime
      */
-    public void allEvent(String ctime,Boolean flag){
+    public void allEvent(String ctime, Boolean flag) {
         // 爬取的页面信息
         HtmlPage htmlPage = getHtmlPage(ctime);
         // 解析出来的数据对象
-        List<Event> event = getEvent(htmlPage,ctime,flag);
-        if(flag){
+        List<Event> event = getEvent(htmlPage, ctime, flag);
+        if (flag) {
             // 遍历保存数据库
-            insertEvent(event,ctime);
-        }else{
+            insertEvent(event, ctime);
+        } else {
             // 批量插入数据
-            updateEvent(event,ctime);
+            updateEvent(event, ctime);
         }
         // 判断是否是当前时间
-        System.out.println(ctime.equals(new SimpleDateFormat("yyyy-MM-dd").format(new Date())+""));
-        if(ctime.equals(new SimpleDateFormat("yyyy-MM-dd").format(new Date())) && flag){
+        System.out.println(ctime.equals(new SimpleDateFormat("yyyy-MM-dd").format(new Date()) + ""));
+        if (ctime.equals(new SimpleDateFormat("yyyy-MM-dd").format(new Date())) && flag) {
             HtmlPage hps = getHtmlPage(DateUtil.getDate(1));
-            List<Event> el = getTomorrowEvent(hps,DateUtil.getDate(0),flag);
+            List<Event> el = getTomorrowEvent(hps, DateUtil.getDate(0), flag);
             // 批量插入数据
-            insertEvent(el,ctime);
+            insertEvent(el, ctime);
         }
     }
 
     /**
      * 描述：新增下注指令【第一节 - 第四节】
+     *
      * @param ctime
      */
-    public void allBetEvent(String ctime){
+    public void allBetEvent(String ctime) {
         // 爬取的页面信息
         HtmlPage htmlPage = getHtmlPage(ctime);
         // 解析出来的数据对象
-        List<Event> event = getBetEvent(htmlPage,ctime);
+        List<Event> event = getBetEvent(htmlPage, ctime);
         // 过滤数据【只包含：CBA和NBA赛事】
         List<Event> collect = event.stream().filter(e -> (e.getType() == 1 || e.getType() == 2 || e.getType() == 3)).collect(Collectors.toList());
         // 判断每节是否红单
-        for(Event e : collect) {
+        for (Event e : collect) {
             QueryWrapper<Event> queryWrapper = new QueryWrapper<Event>();
-            queryWrapper.eq("name",e.getName()).eq("start_time",e.getStartTime());
+            queryWrapper.eq("name", e.getName()).eq("start_time", e.getStartTime());
             List<Event> es = eventMapper.selectList(queryWrapper);
-            log.info("获取的比赛 - > {}",JSON.toJSONString(e));
+            log.info("获取的比赛 - > {}", JSON.toJSONString(e));
             // 判断比赛是否开始
-            if(":".equals(e.getPeriodOne())){
-                log.info("该比赛未开始 -> {},{},{}",es.get(0).getName(),es.get(0).getResults(),es.get(0).getStartTime());
+            if (":".equals(e.getPeriodOne())) {
+                log.info("该比赛未开始 -> {},{},{}", es.get(0).getName(), es.get(0).getResults(), es.get(0).getStartTime());
                 continue;
             }
             // 判断比赛是否红单
-            if(StringUtils.isNotEmpty(es.get(0).getResults())){
-                log.info("该比赛已出比赛结果 -> {},{},{}",es.get(0).getName(),es.get(0).getResults(),es.get(0).getStartTime());
+            if (StringUtils.isNotEmpty(es.get(0).getResults())) {
+                log.info("该比赛已出比赛结果 -> {},{},{}", es.get(0).getName(), es.get(0).getResults(), es.get(0).getStartTime());
                 continue;
             }
             // 判断是否有数据
-            if(es.size() == 1)
-            {
+            if (es.size() == 1) {
                 Event event1 = es.get(0);
-                event1.setName(e.getName().replace("休斯顿火箭","休斯敦火箭"));
+                event1.setName(replace(e.getName()));
                 // 判断支付指令是否已红单
-                if(instructionService.checkInstructionRed(event1,e)){
-                    log.info("该比赛已红单 -> {},{}",event1.getName(),event1.getStartTime());
+                if (instructionService.checkInstructionRed(event1, e)) {
+                    log.info("该比赛已红单 -> {},{}", event1.getName(), event1.getStartTime());
                     continue;
                 }
                 // 下注场次【默认为1】
                 int betSession = 1;
                 String instructionId = null;
                 // 判断第一节
-                if(StringUtils.isNotEmpty(e.getPeriodOne()) && ":".equals(e.getPeriodTow())){
+                if (StringUtils.isNotEmpty(e.getPeriodOne()) && ":".equals(e.getPeriodTow())) {
                     // 判断是否已购买
                     QueryWrapper<Instruction> qw = new QueryWrapper<Instruction>();
-                    qw.eq("bet_htn",event1.getName().split("VS")[0]).eq("bet_time",DateUtil.getDate(0)).eq("bet_session",1);
+                    qw.eq("bet_htn", event1.getName().split("VS")[0]).eq("bet_time", DateUtil.getDate(0)).eq("bet_session", 1);
                     List<Instruction> is = instructionMapper.selectList(qw);
                     // 第一节,新增支付指令
-                    if(is.size() == 1){
-                        log.info("第一节已购买，等待比赛结束 -> {},{}",event1.getName(),event1.getStartTime());
+                    if (is.size() == 1) {
+                        log.info("第一节已购买，等待比赛结束 -> {},{}", event1.getName(), event1.getStartTime());
                         continue;
                     }
                     // 判断是否存在黑五场的数据
                     QueryWrapper<Instruction> black = new QueryWrapper<Instruction>();
-                    black.eq("bet_status",5);
+                    black.eq("bet_status", 5);
                     List<Instruction> blackList = instructionMapper.selectList(black);
-                    if(blackList.size() > 0){
-                        log.info("存在黑五场的数据 - > {},{}",blackList.get(0).getBetAtn()+"VS"+blackList.get(0).getBetHtn(),blackList.get(0).getBetTime());
+                    if (blackList.size() > 0) {
+                        log.info("存在黑五场的数据 - > {},{}", blackList.get(0).getBetAtn() + "VS" + blackList.get(0).getBetHtn(), blackList.get(0).getBetTime());
                         betSession = 5;
                         instructionId = blackList.get(0).getId();
-                    }
-                    else{
+                    } else {
                         betSession = 1;
                     }
-                    instructionService.add(es.get(0),e,betSession,instructionId);
+                    instructionService.add(es.get(0), e, betSession, instructionId);
                     continue;
-                }
-                else if(!":".equals(e.getPeriodTow()) && ":".equals(e.getPeriodThree())){
+                } else if (!":".equals(e.getPeriodTow()) && ":".equals(e.getPeriodThree())) {
                     // 判断第一节是否红了
-                    if(instructionService.checkInstruction(event1,e,1)){
-                        log.info("第一节已红单 -> {},{}",event1.getName(),event1.getStartTime());
+                    if (instructionService.checkInstruction(event1, e, 1)) {
+                        log.info("第一节已红单 -> {},{}", event1.getName(), event1.getStartTime());
                         continue;
                     }
                     // 判断是否已购买
                     QueryWrapper<Instruction> qw = new QueryWrapper<Instruction>();
-                    qw.eq("bet_htn",event1.getName().split("VS")[0]).eq("bet_time",DateUtil.getDate(0)).eq("bet_session",2);
+                    qw.eq("bet_htn", event1.getName().split("VS")[0]).eq("bet_time", DateUtil.getDate(0)).eq("bet_session", 2);
                     List<Instruction> is = instructionMapper.selectList(qw);
-                    if(is.size() == 1){
-                        log.info("第二节已购买，等待比赛结束 -> {},{}",event1.getName(),event1.getStartTime());
+                    if (is.size() == 1) {
+                        log.info("第二节已购买，等待比赛结束 -> {},{}", event1.getName(), event1.getStartTime());
                         continue;
                     }
                     QueryWrapper<Instruction> qw1 = new QueryWrapper<Instruction>();
-                    qw1.eq("bet_htn",event1.getName().split("VS")[0]).eq("bet_time",DateUtil.getDate(0)).eq("bet_session",1).eq("bet_status",4);
+                    qw1.eq("bet_htn", event1.getName().split("VS")[0]).eq("bet_time", DateUtil.getDate(0)).eq("bet_session", 1).eq("bet_status", 4);
                     List<Instruction> is1 = instructionMapper.selectList(qw1);
-                    if(is1.size() == 1 && StringUtils.isNotEmpty(is1.get(0).getInstructionId())){
+                    if (is1.size() == 1 && StringUtils.isNotEmpty(is1.get(0).getInstructionId())) {
                         betSession = 6;
                         instructionId = is1.get(0).getInstructionId();
-                    }else{
+                    } else {
                         betSession = 2;
                     }
                     // 第二节
-                    instructionService.add(es.get(0),e,betSession,instructionId);
+                    instructionService.add(es.get(0), e, betSession, instructionId);
                     continue;
-                }else if(!":".equals(e.getPeriodThree()) && ":".equals(e.getPeriodFour())){
+                } else if (!":".equals(e.getPeriodThree()) && ":".equals(e.getPeriodFour())) {
                     // 判断第二节是否红了
-                    if(instructionService.checkInstruction(event1,e,2)){
-                        log.info("第二节已红单 -> {},{}",event1.getName(),event1.getStartTime());
+                    if (instructionService.checkInstruction(event1, e, 2)) {
+                        log.info("第二节已红单 -> {},{}", event1.getName(), event1.getStartTime());
                         continue;
                     }
                     // 判断是否已购买
                     QueryWrapper<Instruction> qw = new QueryWrapper<Instruction>();
-                    qw.eq("bet_htn",event1.getName().split("VS")[0]).eq("bet_time",DateUtil.getDate(0)).eq("bet_session",3);
+                    qw.eq("bet_htn", event1.getName().split("VS")[0]).eq("bet_time", DateUtil.getDate(0)).eq("bet_session", 3);
                     List<Instruction> is = instructionMapper.selectList(qw);
-                    if(is.size() == 1){
-                        log.info("第三节已购买，等待比赛结束 -> {},{}",event1.getName(),event1.getStartTime());
+                    if (is.size() == 1) {
+                        log.info("第三节已购买，等待比赛结束 -> {},{}", event1.getName(), event1.getStartTime());
                         continue;
                     }
                     QueryWrapper<Instruction> qw1 = new QueryWrapper<Instruction>();
-                    qw1.eq("bet_htn",event1.getName().split("VS")[0]).eq("bet_time",DateUtil.getDate(0)).eq("bet_session",2).eq("bet_status",4);
+                    qw1.eq("bet_htn", event1.getName().split("VS")[0]).eq("bet_time", DateUtil.getDate(0)).eq("bet_session", 2).eq("bet_status", 4);
                     List<Instruction> is1 = instructionMapper.selectList(qw1);
-                    if(is1.size() == 1 && StringUtils.isNotEmpty(is1.get(0).getInstructionId())){
+                    if (is1.size() == 1 && StringUtils.isNotEmpty(is1.get(0).getInstructionId())) {
                         betSession = 7;
                         instructionId = is1.get(0).getInstructionId();
-                    }else{
+                    } else {
                         betSession = 3;
                     }
                     // 第三节
-                    instructionService.add(es.get(0),e,betSession,instructionId);
+                    instructionService.add(es.get(0), e, betSession, instructionId);
                     continue;
-                }else if(!":".equals(e.getPeriodFour()) && "比赛进行中".equals(e.getOverTimeFive())){
+                } else if (!":".equals(e.getPeriodFour()) && "比赛进行中".equals(e.getOverTimeFive())) {
 
                     // 判断第三节是否红了
-                    if(instructionService.checkInstruction(event1,e,3)){
-                        log.info("第三节已红单 -> {},{}",event1.getName(),event1.getStartTime());
+                    if (instructionService.checkInstruction(event1, e, 3)) {
+                        log.info("第三节已红单 -> {},{}", event1.getName(), event1.getStartTime());
                         continue;
                     }
                     // 判断是否已购买
                     QueryWrapper<Instruction> qw = new QueryWrapper<Instruction>();
-                    qw.eq("bet_htn",event1.getName().split("VS")[0]).eq("bet_time",DateUtil.getDate(0)).eq("bet_session",4);
+                    qw.eq("bet_htn", event1.getName().split("VS")[0]).eq("bet_time", DateUtil.getDate(0)).eq("bet_session", 4);
                     List<Instruction> is = instructionMapper.selectList(qw);
-                    if(is.size() == 1){
-                        log.info("第四节已购买，等待比赛结束 -> {},{}",event1.getName(),event1.getStartTime());
+                    if (is.size() == 1) {
+                        log.info("第四节已购买，等待比赛结束 -> {},{}", event1.getName(), event1.getStartTime());
                         continue;
                     }
                     QueryWrapper<Instruction> qw1 = new QueryWrapper<Instruction>();
-                    qw1.eq("bet_htn",event1.getName().split("VS")[0]).eq("bet_time",DateUtil.getDate(0)).eq("bet_session",3).eq("bet_status",4);
+                    qw1.eq("bet_htn", event1.getName().split("VS")[0]).eq("bet_time", DateUtil.getDate(0)).eq("bet_session", 3).eq("bet_status", 4);
                     List<Instruction> is1 = instructionMapper.selectList(qw1);
-                    if(is1.size() == 1 && StringUtils.isNotEmpty(is1.get(0).getInstructionId())){
+                    if (is1.size() == 1 && StringUtils.isNotEmpty(is1.get(0).getInstructionId())) {
                         betSession = 8;
                         instructionId = is1.get(0).getInstructionId();
-                    }else{
+                    } else {
                         betSession = 4;
                     }
                     // 新增第四节下注指令
-                    instructionService.add(es.get(0),e,betSession,instructionId);
+                    instructionService.add(es.get(0), e, betSession, instructionId);
                     continue;
-                }else if(!":".equals(e.getPeriodFour()) && "比赛结束".equals(e.getOverTimeFive())){
+                } else if (!":".equals(e.getPeriodFour()) && "比赛结束".equals(e.getOverTimeFive())) {
                     // 第四节判断，是否全黑
-                    int k1,k2 = 0;
+                    int k1, k2 = 0;
                     String[] splitf = e.getPeriodFour().split(":");
                     k1 = Integer.parseInt(splitf[0]);
                     k2 = Integer.parseInt(splitf[1]);
                     String[] splitb = event1.getQuizResults().split(",");
                     String ds = "双";
-                    if((k1+k2)%2==1){
+                    if ((k1 + k2) % 2 == 1) {
                         ds = "单";
                     }
                     QueryWrapper<Instruction> qw = new QueryWrapper<Instruction>();
-                    qw.eq("bet_htn",event1.getName().split("VS")[0]).eq("bet_time",DateUtil.getDate(0)).eq("bet_status",2);
+                    qw.eq("bet_htn", event1.getName().split("VS")[0]).eq("bet_time", DateUtil.getDate(0)).eq("bet_status", 2);
                     List<Instruction> is = instructionMapper.selectList(qw);
-                    if(is.size() == 1){
+                    if (is.size() == 1) {
                         Instruction instruction = is.get(0);
-                        if(ds.equals(splitb[3])){
+                        if (ds.equals(splitb[3])) {
                             // 更新第四节的下注指令
-                            if(instruction.getBetSession() == 8){
+                            if (instruction.getBetSession() == 8) {
                                 // 将4黑数据清空一笔
                                 QueryWrapper<Instruction> black = new QueryWrapper<Instruction>();
-                                black.eq("bet_status",5);
+                                black.eq("bet_status", 5);
                                 List<Instruction> blackList = instructionMapper.selectList(black);
-                                if(blackList.size() > 0){
+                                if (blackList.size() > 0) {
                                     Instruction instruction1 = blackList.get(0);
                                     instruction1.setBetStatus(4);
                                     instructionMapper.updateById(instruction1);
@@ -262,7 +262,7 @@ public class HtmlUtil {
                             instruction.setBetStatus(3);
                             instructionMapper.updateById(instruction);
                             continue;
-                        }else{
+                        } else {
                             // 更新第四节的下注指令
                             instruction.setBetStatus(5);
                             instructionMapper.updateById(instruction);
@@ -274,73 +274,82 @@ public class HtmlUtil {
     }
 
     /**
+     * 修改不正确比赛名称
+     * @param name
+     * @return
+     */
+    private static String replace(String name) {
+        String nameReplace = name.replace("休斯顿火箭", "休斯敦火箭")
+                .replace("康涅狄克太阳", "康乃狄阳光");
+        return nameReplace;
+    }
+
+    /**
      * 描述：获取单日全部赛事信息
+     *
      * @param ctime
      */
-    public void insertAllEvent(String ctime){
+    public void insertAllEvent(String ctime) {
         // 爬取的页面信息
         HtmlPage htmlPage = getHtmlPage(ctime);
         // 解析出来的数据对象
-        List<Event> event = getAllEvent(htmlPage,ctime);
+        List<Event> event = getAllEvent(htmlPage, ctime);
         // 遍历保存数据库
-        insertEvent(event,ctime);
+        insertEvent(event, ctime);
     }
-
 
 
     /**
      * 描述：批量插入数据
+     *
      * @param list
      * @param ctime
      */
-    public void insertEvent(List<Event> list,String ctime)
-    {
-        for(Event e : list) {
+    public void insertEvent(List<Event> list, String ctime) {
+        for (Event e : list) {
             QueryWrapper<Event> queryWrapper = new QueryWrapper<Event>();
-            queryWrapper.eq("name",e.getName()).eq("start_time",e.getStartTime());
+            queryWrapper.eq("name", e.getName()).eq("start_time", e.getStartTime());
             List<Event> es = eventMapper.selectList(queryWrapper);
-            if(es.size() == 0)
-            {
+            if (es.size() == 0) {
                 eventMapper.insert(e);
-            }else{
-                System.out.println("我是查询出来的对象："+JSON.toJSONString(es));
+            } else {
+                System.out.println("我是查询出来的对象：" + JSON.toJSONString(es));
             }
         }
     }
 
     /**
      * 描述：批量插入数据
+     *
      * @param list
      * @param ctime
      */
-    public void updateEvent(List<Event> list,String ctime)
-    {
-        for(Event e : list){
+    public void updateEvent(List<Event> list, String ctime) {
+        for (Event e : list) {
             QueryWrapper<Event> queryWrapper = new QueryWrapper<Event>();
-            queryWrapper.eq("name",e.getName()).eq("start_time",ctime);
+            queryWrapper.eq("name", e.getName()).eq("start_time", ctime);
             List<Event> es = eventMapper.selectList(queryWrapper);
-            if(es.size() > 0)
-            {
+            if (es.size() > 0) {
                 es.get(0).setPeriodOne(e.getPeriodOne());
                 es.get(0).setPeriodTow(e.getPeriodTow());
                 es.get(0).setPeriodThree(e.getPeriodThree());
                 es.get(0).setPeriodFour(e.getPeriodFour());
                 es.get(0).setStatus(1);
                 eventMapper.updateById(es.get(0));
-            }else{
-                System.out.println("我是查询出来的对象："+JSON.toJSONString(es));
+            } else {
+                System.out.println("我是查询出来的对象：" + JSON.toJSONString(es));
             }
         }
     }
 
     /**
      * 描述：解析赛事 + 获取赛事对象
+     *
      * @param htmlPage
      * @param ctime
      * @return
      */
-    public List<Event> getEvent(HtmlPage htmlPage,String ctime,Boolean flag)
-    {
+    public List<Event> getEvent(HtmlPage htmlPage, String ctime, Boolean flag) {
         // 定义对象
         List<Event> list = new ArrayList<>();
         //直接将加载完成的页面转换成xml格式的字符串
@@ -351,11 +360,10 @@ public class HtmlUtil {
         // 获取当日天数+1,获取明天比赛信息
         String day = ctime.split("-")[2];
         int day_len = day.length();
-        if(1 == day_len)
-        {
-            day = "0"+day;
+        if (1 == day_len) {
+            day = "0" + day;
         }
-        String LX, ZD, time, dayBS, dayBSS, KD = "", format = "HH:mm",BSTYPE = "";
+        String LX, ZD, time, dayBS, dayBSS, KD = "", format = "HH:mm", BSTYPE = "";
         String[] arr = new String[2];
         for (int i = 0; i < len; i++) {
             LX = document.getElementById("live").getElementsByTag("table")
@@ -364,8 +372,7 @@ public class HtmlUtil {
                     || LX.contains("篮") || LX.contains("甲") || LX.contains("甲")
                     || LX.contains("星") || LX.contains("乙") || LX.contains("女")
                     || LX.contains("友") || LX.contains("东") || LX.contains("西")
-                    || LX.contains("联") || LX.contains("杯") || LX.contains("超"))
-            {
+                    || LX.contains("联") || LX.contains("杯") || LX.contains("超")) {
                 BSTYPE = LX;
                 i = i + 1;
             }
@@ -396,7 +403,7 @@ public class HtmlUtil {
                             new SimpleDateFormat(format).parse("23:59"))) {
                         //获取主客队名称
                         //将主客队名称繁体改为简体
-                        e.setName(getEventName(ZD,KD));
+                        e.setName(getEventName(ZD, KD));
                         e.setType(getType(BSTYPE));
                         e.setTypeName(BSTYPE);
                         e.setEventTime(time);
@@ -422,33 +429,33 @@ public class HtmlUtil {
                             .getElementsByTag("tr").get(2)
                             .getElementsByTag("td").get(0).text();
                     Event e = new Event();
-                    e.setName(getEventName(ZD,KD));
+                    e.setName(getEventName(ZD, KD));
                     e.setUpdateTime(new Date());
                     e.setPeriodOne(document.getElementById("live")
                             .getElementsByTag("table").get(i)
                             .getElementsByTag("tr").get(1)
-                            .getElementsByTag("td").get(2).text()+":"+document.getElementById("live")
+                            .getElementsByTag("td").get(2).text() + ":" + document.getElementById("live")
                             .getElementsByTag("table").get(i)
                             .getElementsByTag("tr").get(2)
                             .getElementsByTag("td").get(1).text());
                     e.setPeriodTow(document.getElementById("live")
                             .getElementsByTag("table").get(i)
                             .getElementsByTag("tr").get(1)
-                            .getElementsByTag("td").get(3).text()+":"+document.getElementById("live")
+                            .getElementsByTag("td").get(3).text() + ":" + document.getElementById("live")
                             .getElementsByTag("table").get(i)
                             .getElementsByTag("tr").get(2)
                             .getElementsByTag("td").get(2).text());
                     e.setPeriodThree(document.getElementById("live")
                             .getElementsByTag("table").get(i)
                             .getElementsByTag("tr").get(1)
-                            .getElementsByTag("td").get(4).text()+":"+document.getElementById("live")
+                            .getElementsByTag("td").get(4).text() + ":" + document.getElementById("live")
                             .getElementsByTag("table").get(i)
                             .getElementsByTag("tr").get(2)
                             .getElementsByTag("td").get(3).text());
                     e.setPeriodFour(document.getElementById("live")
                             .getElementsByTag("table").get(i)
                             .getElementsByTag("tr").get(1)
-                            .getElementsByTag("td").get(5).text()+":"+document.getElementById("live")
+                            .getElementsByTag("td").get(5).text() + ":" + document.getElementById("live")
                             .getElementsByTag("table").get(i)
                             .getElementsByTag("tr").get(2)
                             .getElementsByTag("td").get(4).text());
@@ -466,12 +473,12 @@ public class HtmlUtil {
 
     /**
      * 描述：解析赛事 + 获取赛事对象
+     *
      * @param htmlPage
      * @param ctime
      * @return
      */
-    public List<Event> getBetEvent(HtmlPage htmlPage,String ctime)
-    {
+    public List<Event> getBetEvent(HtmlPage htmlPage, String ctime) {
         // 定义对象
         List<Event> list = new ArrayList<>();
         //直接将加载完成的页面转换成xml格式的字符串
@@ -482,11 +489,10 @@ public class HtmlUtil {
         // 获取当日天数+1,获取明天比赛信息
         String day = ctime.split("-")[2];
         int day_len = day.length();
-        if(1 == day_len)
-        {
-            day = "0"+day;
+        if (1 == day_len) {
+            day = "0" + day;
         }
-        String LX, ZD, time, dayBS, dayBSS, KD = "", format = "HH:mm",BSTYPE = "";
+        String LX, ZD, time, dayBS, dayBSS, KD = "", format = "HH:mm", BSTYPE = "";
         String[] arr = new String[2];
         for (int i = 0; i < len; i++) {
             LX = document.getElementById("live").getElementsByTag("table")
@@ -495,8 +501,7 @@ public class HtmlUtil {
                     || LX.contains("篮") || LX.contains("甲") || LX.contains("甲")
                     || LX.contains("星") || LX.contains("乙") || LX.contains("女")
                     || LX.contains("友") || LX.contains("东") || LX.contains("西")
-                    || LX.contains("联") || LX.contains("杯") || LX.contains("超"))
-            {
+                    || LX.contains("联") || LX.contains("杯") || LX.contains("超")) {
                 BSTYPE = LX;
                 i = i + 1;
             }
@@ -519,41 +524,41 @@ public class HtmlUtil {
                             .getElementsByTag("tr").get(2)
                             .getElementsByTag("td").get(0).text();
                     Event e = new Event();
-                    e.setName(getEventName(ZD,KD));
+                    e.setName(getEventName(ZD, KD));
                     e.setType(getType(BSTYPE));
                     e.setStartTime(DateUtil.getDate(0));
                     e.setUpdateTime(new Date());
                     e.setPeriodOne(document.getElementById("live")
                             .getElementsByTag("table").get(i)
                             .getElementsByTag("tr").get(1)
-                            .getElementsByTag("td").get(2).text()+":"+document.getElementById("live")
+                            .getElementsByTag("td").get(2).text() + ":" + document.getElementById("live")
                             .getElementsByTag("table").get(i)
                             .getElementsByTag("tr").get(2)
                             .getElementsByTag("td").get(1).text());
                     e.setPeriodTow(document.getElementById("live")
                             .getElementsByTag("table").get(i)
                             .getElementsByTag("tr").get(1)
-                            .getElementsByTag("td").get(3).text()+":"+document.getElementById("live")
+                            .getElementsByTag("td").get(3).text() + ":" + document.getElementById("live")
                             .getElementsByTag("table").get(i)
                             .getElementsByTag("tr").get(2)
                             .getElementsByTag("td").get(2).text());
                     e.setPeriodThree(document.getElementById("live")
                             .getElementsByTag("table").get(i)
                             .getElementsByTag("tr").get(1)
-                            .getElementsByTag("td").get(4).text()+":"+document.getElementById("live")
+                            .getElementsByTag("td").get(4).text() + ":" + document.getElementById("live")
                             .getElementsByTag("table").get(i)
                             .getElementsByTag("tr").get(2)
                             .getElementsByTag("td").get(3).text());
                     e.setPeriodFour(document.getElementById("live")
                             .getElementsByTag("table").get(i)
                             .getElementsByTag("tr").get(1)
-                            .getElementsByTag("td").get(5).text()+":"+document.getElementById("live")
+                            .getElementsByTag("td").get(5).text() + ":" + document.getElementById("live")
                             .getElementsByTag("table").get(i)
                             .getElementsByTag("tr").get(2)
                             .getElementsByTag("td").get(4).text());
-                    if((time.contains("完"))){
+                    if ((time.contains("完"))) {
                         e.setOverTimeFive("比赛结束");
-                    }else{
+                    } else {
                         e.setOverTimeFive("比赛进行中");
                     }
                     list.add(e);
@@ -570,12 +575,12 @@ public class HtmlUtil {
 
     /**
      * 描述：解析赛事 + 获取赛事对象
+     *
      * @param htmlPage
      * @param ctime
      * @return
      */
-    public List<Event> getAllEvent(HtmlPage htmlPage,String ctime)
-    {
+    public List<Event> getAllEvent(HtmlPage htmlPage, String ctime) {
         // 定义对象
         List<Event> list = new ArrayList<>();
         //直接将加载完成的页面转换成xml格式的字符串
@@ -586,11 +591,10 @@ public class HtmlUtil {
         // 获取当日天数+1,获取明天比赛信息
         String day = ctime.split("-")[2];
         int day_len = day.length();
-        if(1 == day_len)
-        {
-            day = "0"+day;
+        if (1 == day_len) {
+            day = "0" + day;
         }
-        String LX, ZD, time, dayBS, dayBSS, KD = "", format = "HH:mm",BSTYPE = "";
+        String LX, ZD, time, dayBS, dayBSS, KD = "", format = "HH:mm", BSTYPE = "";
         String[] arr = new String[2];
         for (int i = 0; i < len; i++) {
             LX = document.getElementById("live").getElementsByTag("table")
@@ -599,8 +603,7 @@ public class HtmlUtil {
                     || LX.contains("篮") || LX.contains("甲") || LX.contains("甲")
                     || LX.contains("星") || LX.contains("乙") || LX.contains("女")
                     || LX.contains("友") || LX.contains("东") || LX.contains("西")
-                    || LX.contains("联") || LX.contains("杯") || LX.contains("超"))
-            {
+                    || LX.contains("联") || LX.contains("杯") || LX.contains("超")) {
                 BSTYPE = LX;
                 i = i + 1;
             }
@@ -631,11 +634,11 @@ public class HtmlUtil {
                             new SimpleDateFormat(format).parse("23:59"))) {
                         //获取主客队名称
                         //将主客队名称繁体改为简体
-                        e.setName(getEventName(ZD,KD));
+                        e.setName(getEventName(ZD, KD));
                         e.setType(getType(BSTYPE));
                         e.setTypeName(BSTYPE);
                         e.setEventTime(time);
-                        e.setStartTime(ctime.split("-")[0]+"-"+ctime.split("-")[1]+"-"+dayBS);
+                        e.setStartTime(ctime.split("-")[0] + "-" + ctime.split("-")[1] + "-" + dayBS);
                         e.setQuizResults(RandomNumberUtil.getRandomNumber());
                         e.setDeleted(0);
                         e.setVersion("1");
@@ -657,12 +660,12 @@ public class HtmlUtil {
 
     /**
      * 描述：解析赛事 + 获取赛事对象
+     *
      * @param htmlPage
      * @param ctime
      * @return
      */
-    public List<Event> getTomorrowEvent(HtmlPage htmlPage,String ctime,Boolean flag)
-    {
+    public List<Event> getTomorrowEvent(HtmlPage htmlPage, String ctime, Boolean flag) {
         // 定义对象
         List<Event> list = new ArrayList<>();
         //直接将加载完成的页面转换成xml格式的字符串
@@ -673,11 +676,10 @@ public class HtmlUtil {
         // 获取当日天数+1,获取明天比赛信息
         String day = DateUtil.getDate(0).split("-")[2];
         int day_len = day.length();
-        if(1 == day_len)
-        {
-            day = "0"+day;
+        if (1 == day_len) {
+            day = "0" + day;
         }
-        String LX, ZD, time, dayBS, dayBSS, KD = "", format = "HH:mm",BSTYPE = "";
+        String LX, ZD, time, dayBS, dayBSS, KD = "", format = "HH:mm", BSTYPE = "";
         String[] arr = new String[2];
         for (int i = 0; i < len; i++) {
             LX = document.getElementById("live").getElementsByTag("table")
@@ -686,8 +688,7 @@ public class HtmlUtil {
                     || LX.contains("篮") || LX.contains("甲") || LX.contains("甲")
                     || LX.contains("星") || LX.contains("乙") || LX.contains("女")
                     || LX.contains("友") || LX.contains("东") || LX.contains("西")
-                    || LX.contains("联") || LX.contains("杯") || LX.contains("超"))
-            {
+                    || LX.contains("联") || LX.contains("杯") || LX.contains("超")) {
                 BSTYPE = LX;
                 i = i + 1;
             }
@@ -719,7 +720,7 @@ public class HtmlUtil {
                             new SimpleDateFormat(format).parse("08:00"),
                             new SimpleDateFormat(format).parse("23:59"))) {
                         //获取主客队名称
-                        e.setName(getEventName(ZD,KD));
+                        e.setName(getEventName(ZD, KD));
                         e.setType(getType(BSTYPE));
                         e.setTypeName(BSTYPE);
                         e.setEventTime(time);
@@ -745,23 +746,24 @@ public class HtmlUtil {
 
     /**
      * 描述：获取队伍名称
+     *
      * @param zd
      * @param kd
      * @return
      */
-    public String getEventName(String zd,String kd)
-    {
-        if(zd.contains(KL)){
+    public String getEventName(String zd, String kd) {
+        if (zd.contains(KL)) {
             zd = zd.substring(0, zd.indexOf(KL));
         }
-        if(kd.contains(KL)){
+        if (kd.contains(KL)) {
             kd = kd.substring(0, kd.indexOf(KL));
         }
-        return zd+"VS"+kd;
+        return zd + "VS" + kd;
     }
 
     /**
      * 描述：获取对象
+     *
      * @return
      */
     public HtmlPage getHtmlPage(String ctime) {
@@ -783,8 +785,7 @@ public class HtmlUtil {
         try {
             //尝试加载上面图片例子给出的网页
             url = "http://score.nowscore.com/basketball.htm";
-            if(StringUtils.isNotEmpty(ctime))
-            {
+            if (StringUtils.isNotEmpty(ctime)) {
                 url = url + "?date=" + ctime;
             }
             HtmlPage page = webClient.getPage(url);
@@ -798,7 +799,7 @@ public class HtmlUtil {
             hpm = (HtmlPage) s.getNewPage();
         } catch (Exception e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             webClient.close();
         }
         return hpm;
@@ -806,21 +807,22 @@ public class HtmlUtil {
 
     /**
      * 根据类型返回type
+     *
      * @param typeName
      * @return
      */
-    public int getType(String typeName){
-        if(CBA.equals(typeName) || "CBA季后赛".equals(typeName) || "CBA季后".equals(typeName)){
+    public int getType(String typeName) {
+        if (CBA.equals(typeName) || "CBA季后赛".equals(typeName) || "CBA季后".equals(typeName)) {
             return 1;
-        }else if(NBA.equals(typeName) || "NBA季后赛".equals(typeName) || "NBA季后".equals(typeName)){
+        } else if (NBA.equals(typeName) || "NBA季后赛".equals(typeName) || "NBA季后".equals(typeName)) {
             return 2;
-        }else if(W_NBA.equals(typeName)){
+        } else if (W_NBA.equals(typeName)) {
             return 3;
-        }else if(typeName.contains(YL)){
+        } else if (typeName.contains(YL)) {
             return 4;
-        }else if(typeName.contains(NXL)){
+        } else if (typeName.contains(NXL)) {
             return 5;
-        }else{
+        } else {
             return 6;
         }
     }
