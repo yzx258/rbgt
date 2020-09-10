@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+	<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>爆红APP - 昨日数据</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+		<!--标准mui.css-->
+		<link rel="stylesheet" href="../css/mui.min.css">
+		<!--App自定义的css-->
+		<!--<link rel="stylesheet" type="text/css" href="css/app.css"/>-->
+	</head>
+
+	<body style="background-color: white;">
+		<div id="div">
+			<!--<div style="width: 96%;margin: auto;">
+				<div style="width: 96%;margin: auto;margin-top: 10px;height:40px;">
+					<h4 style="line-height: 40px;">苏州肯帝亚VS福建豹发力(CBA)</h4>
+				</div>
+				<div style="width: 96%;margin: auto;height:20px;">
+					<div style="width: 50%;;height:20px;float: left;">
+						<font style="font-size: 10px;">竞猜：</font><font style="font-size: 16px;font-weight: bold;color:#1E9FFF;">单，双，单，单</font>
+					</div>
+					<div style="width: 50%;;height:20px;float: left;">
+						<font style="font-size: 10px;">结果：未计算</font>
+					</div>
+				</div>
+				<div style="width: 96%;margin: auto;height:20px;">
+					<div style="width: 50%;;height:20px;float: left;">
+						<font style="font-size: 10px;">日期：2020-07-01</font>
+					</div>
+					<div style="width: 50%;;height:20px;float: left;">
+						<font style="font-size: 10px;">开始：01日 16:00</font>
+					</div>
+				</div>
+			</div>-->
+		</div>
+	</body>
+	<script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.5.1.min.js"></script>
+	<script type="text/javascript" charset="utf-8">
+		$.ajax({
+			url: "http://47.106.143.218:8081/event/yesterday/event", //访问后台接口取数据
+			type: 'GET',
+			success: function(data) {
+				if(data.data.length > 0) {
+					var div = "";
+					for(i = 0; i < data.data.length; i++) {
+						var results = "未核算";
+						var resultsDiv = "<font style='font-size: 10px;'>结果：" + results + "</font>";
+						if(null != data.data[i].results) {
+							results = data.data[i].results;
+							if("红" == results) {
+								resultsDiv = "<font style='font-size: 10px;'>结果：</font><font style='font-size: 16px;font-weight: bold;color:red;'>" + results + "</font>";
+							} else {
+								resultsDiv = "<font style='font-size: 10px;'>结果：</font><font style='font-size: 16px;font-weight: bold;color:#c2c2c2;'>" + results + "</font>";
+							}
+						}
+						console.log(resultsDiv)
+						div = "<div style='width: 96%;margin: auto;'>" +
+							"<div style='width: 96%;margin: auto;margin-top: 10px;height:40px;'>" +
+							"<h4 style='line-height: 40px;'>" + data.data[i].name + "(" + data.data[i].typeName + ")</h4>" +
+							"</div>" +
+							"<div style='width: 96%;margin: auto;height:20px;'>" +
+							"<div style='width: 50%;;height:20px;float: left;'>" +
+							"<font style='font-size: 10px;'>竞猜：</font><font style='font-size: 16px;font-weight: bold;color:red;'>" + data.data[i].quizResults + "</font>" +
+							"</div>" +
+							"<div style='width: 50%;;height:20px;float: left;'>" +
+							resultsDiv +
+							"</div>" +
+							"</div>" +
+							"<div style='width: 96%;margin: auto;height:20px;'>" +
+							"<div style='width: 50%;;height:20px;float: left;'>" +
+							"<font style='font-size: 10px;'>日期：" + data.data[i].startTime + "</font>" +
+							"</div>" +
+							"<div style='width: 50%;;height:20px;float: left;'>" +
+							"<font style='font-size: 10px;'>开始：" + data.data[i].eventTime + "</font>" +
+							"</div>" +
+							"</div>" +
+							"</div>";
+						$("#div").append(div);
+					}
+				} else {
+					div = "<div style='width: 96%;margin: auto;'>" +
+						"<div style='width: 96%;margin: auto;margin-top: 10px;height:40px;'>" +
+						"<h4 style='line-height: 40px;'>暂无数据，敬请起待</h4>" +
+						"</div>"
+					$("#div").append(div);
+				}
+			}
+		});
+	</script>
+	<script type="text/javascript" src="../js/mui.js"></script>
+	<script type="text/javascript" charset="utf-8">
+		mui.oldback = mui.back;
+		mui.back = function(event) {
+			window.history.back(-1);
+		}
+	</script>
+
+	</html>

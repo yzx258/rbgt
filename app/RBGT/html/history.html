@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>爆红APP - 历史数据</title>
+		<!--标准mui.css-->
+		<link rel="stylesheet" href="../css/mui.min.css">
+		<!--App自定义的css-->
+		<link rel="stylesheet" type="text/css" href="../css/app.css" />
+		<!--<link href="../css/mui.picker.css" rel="stylesheet" />
+		<link href="../css/mui.dtpicker.css" rel="stylesheet" />-->
+		<link rel="stylesheet" type="text/css" href="../css/mui.picker.min.css" />
+		<style>
+			html,
+			body,
+			.mui-content {
+				height: 0px;
+				margin: 0px;
+				background-color: white;
+			}
+			
+			h5.mui-content-padded {
+				margin-left: 3px;
+				margin-top: 20px !important;
+			}
+			
+			h5.mui-content-padded:first-child {
+				margin-top: 12px !important;
+			}
+			
+			.mui-btn {
+				font-size: 16px;
+				padding: 8px;
+				margin: 3px;
+			}
+			
+			.ui-alert {
+				text-align: center;
+				padding: 20px 10px;
+				font-size: 16px;
+			}
+			
+			* {
+				-webkit-touch-callout: none;
+				-webkit-user-select: none;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="nr" class="mui-content">
+			<div class="mui-content-padded">
+				<button style="background-color: #1E9FFF;color: white;font-weight: bold;border:none;border-radius: 5px;" id='demo4' data-options='{"type":"date"}' class="btn mui-btn mui-btn-block">选择日期</button>
+			</div>
+			<div id="div">
+
+			</div>
+		</div>
+		<script src="../js/mui.min.js"></script>
+		<!--<script src="../js/mui.picker.js"></script>
+		<script src="../js/mui.dtpicker.js"></script>-->
+		<script src="../js/mui.picker.min.js"></script>
+		<script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.5.1.min.js"></script>
+		<script>
+			// 进来获取当前
+			var date = new Date();
+			var year = date.getFullYear();
+			var month = date.getMonth() + 1;
+			var day = date.getDate();
+			if(month < 10) {
+				month = "0" + month;
+			}
+			if(day < 10) {
+				day = "0" + day;
+			}
+			eventInfo(year + "-" + month + "-" + day);
+			// =============================================
+			var date = "";
+			var i = 0;
+			(function($) {
+				$.init();
+				var result = $('#result')[0];
+				var btns = $('.btn');
+				btns.each(function(i, btn) {
+					btn.addEventListener('tap', function() {
+						var _self = this;
+						if(_self.picker) {
+							_self.picker.show(function(rs) {
+								eventInfo(rs.text)
+								_self.picker.dispose();
+								_self.picker = null;
+							});
+						} else {
+							var optionsJson = this.getAttribute('data-options') || '{}';
+							var options = JSON.parse(optionsJson);
+							var id = this.getAttribute('id');
+							/*
+							 * 首次显示时实例化组件
+							 * 示例为了简洁，将 options 放在了按钮的 dom 上
+							 * 也可以直接通过代码声明 optinos 用于实例化 DtPicker
+							 */
+							_self.picker = new $.DtPicker(options);
+							_self.picker.show(function(rs) {
+								/*
+								 * rs.value 拼合后的 value
+								 * rs.text 拼合后的 text
+								 * rs.y 年，可以通过 rs.y.vaue 和 rs.y.text 获取值和文本
+								 * rs.m 月，用法同年
+								 * rs.d 日，用法同年
+								 * rs.h 时，用法同年
+								 * rs.i 分（minutes 的第二个字母），用法同年
+								 */
+								eventInfo(rs.text)
+								/* 
+								 * 返回 false 可以阻止选择框的关闭
+								 * return false;
+								 */
+								/*
+								 * 释放组件资源，释放后将将不能再操作组件
+								 * 通常情况下，不需要示放组件，new DtPicker(options) 后，可以一直使用。
+								 * 当前示例，因为内容较多，如不进行资原释放，在某些设备上会较慢。
+								 * 所以每次用完便立即调用 dispose 进行释放，下次用时再创建新实例。
+								 */
+								_self.picker.dispose();
+								_self.picker = null;
+							});
+						}
+
+					}, false);
+				});
+			})(mui);
+
+			function eventInfo(date) {
+				if(i > 0) {
+					$("#div").remove();
+				}
+				$.ajax({
+					url: "http://47.106.143.218:8081/event/get/date/event/" + date + "", //访问后台接口取数据
+					type: 'GET',
+					success: function(data) {
+						var div = "";
+						if(data.data.length == 0) {
+							div = "<div style='width: 96%;margin: auto;'>" +
+								"<div style='width: 96%;margin: auto;margin-top: 10px;height:40px;'>" +
+								"<h4 style='line-height: 40px;'>暂无数据，敬请起待</h4>" +
+								"</div>"
+							$("#div").append(div);
+							return;
+						}
+						for(i = 0; i < data.data.length; i++) {
+							var results = "未核算";
+							var resultsDiv = "<font style='font-size: 10px;'>结果：" + results + "</font>";
+							if(null != data.data[i].results) {
+								results = data.data[i].results;
+								if("红" == results) {
+									resultsDiv = "<font style='font-size: 10px;'>结果：</font><font style='font-size: 16px;font-weight: bold;color:red;'>" + results + "</font>";
+								} else {
+									resultsDiv = "<font style='font-size: 10px;'>结果：</font><font style='font-size: 16px;font-weight: bold;color:#c2c2c2;'>" + results + "</font>";
+								}
+							}
+							div = "<div id='content' style='width: 96%;margin: auto;'>" +
+								"<div style='width: 96%;margin: auto;margin-top: 10px;height:40px;'>" +
+								"<h4 style='line-height: 40px;'>" + data.data[i].name + "(" + data.data[i].typeName + ")</h4>" +
+								"</div>" +
+								"<div style='width: 96%;margin: auto;height:20px;'>" +
+								"<div style='width: 50%;;height:20px;float: left;'>" +
+								"<font style='font-size: 10px;'>竞猜：</font><font style='font-size: 16px;font-weight: bold;color:red;'>" + data.data[i].quizResults + "</font>" +
+								"</div>" +
+								"<div style='width: 50%;;height:20px;float: left;'>" +
+								resultsDiv +
+								"</div>" +
+								"</div>" +
+								"<div style='width: 96%;margin: auto;height:20px;'>" +
+								"<div style='width: 50%;;height:20px;float: left;'>" +
+								"<font style='font-size: 10px;'>日期：" + data.data[i].startTime + "</font>" +
+								"</div>" +
+								"<div style='width: 50%;;height:20px;float: left;'>" +
+								"<font style='font-size: 10px;'>开始：" + data.data[i].eventTime + "</font>" +
+								"</div>" +
+								"</div>" +
+								"</div>";
+							$("#div").append(div);
+						}
+					}
+				});
+				if(i >= 1) {
+					$("#nr").append("<div id='div'></div>");
+				}
+				i = i + 1;
+			}
+		</script>
+	</body>
+
+</html>

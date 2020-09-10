@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>爆红APP - 首页预览</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+		<!--标准mui.css-->
+		<link rel="stylesheet" href="css/mui.min.css">
+		<!--App自定义的css-->
+		<!--<link rel="stylesheet" type="text/css" href="css/app.css"/>-->
+	</head>
+
+	<body style="background-color: white;font-family: '微软雅黑';">
+		<div id="slider" class="mui-slider" style="width: 96%;margin: auto;margin-top: 10px;border-radius: 10px">
+			<div class="mui-slider-group mui-slider-loop">
+				<!-- 第一张 -->
+				<div class="mui-slider-item">
+					<a href="#">
+						<img src="images/123.jpg">
+					</a>
+				</div>
+				<!-- 第二张 -->
+				<div class="mui-slider-item">
+					<a href="#">
+						<img src="images/234.jpg">
+					</a>
+				</div>
+			</div>
+			<div class="mui-slider-indicator">
+				<div class="mui-indicator mui-active"></div>
+				<div class="mui-indicator"></div>
+			</div>
+		</div>
+		<div style="width: 96%;height:64px;margin: auto;margin-top: 10px;">
+			<div style="width: 100%;height: 30px;">
+				<font style="line-height: 30px;">获取 - 赛事信息</font>
+			</div>
+			<div style="width: 100%;margin-top: 10px;">
+				<div id="today" style="width: 80px;float: left;">
+					<div style="width: 44px;height:44px;border-radius: 44px;background-color: #009688;margin: auto;">
+						<img src="images/zxbb.png" style="position: relative;left: 6px;top:6px;" />
+					</div>
+					<div style="width: 80px;height:20px;text-align: center;">
+						<font style="font-size: 12px;line-height: 20px;">今日赛事</font>
+					</div>
+				</div>
+				<div id="tomorrow" style="width: 80px;float: left;">
+					<div style="width: 44px;height:44px;border-radius: 44px;background-color: #1E9FFF;margin: auto;">
+						<img src="images/zxbb.png" style="position: relative;left: 6px;top:6px;" />
+					</div>
+					<div style="width: 80px;height:20px;text-align: center;">
+						<font style="font-size: 12px;line-height: 20px;">明日赛事</font>
+					</div>
+				</div>
+				<div id="yesterday" style="width: 80px;float: left;">
+					<div style="width: 44px;height:44px;border-radius: 44px;background-color: #FF5722;margin: auto;">
+						<img src="images/zxbb.png" style="position: relative;left: 6px;top:6px;" />
+					</div>
+					<div style="width: 80px;height:20px;text-align: center;">
+						<font style="font-size: 12px;line-height: 20px;">昨日赛事</font>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div style="width: 96%;height:64px;margin: auto;margin-top: 50px;">
+			<div style="width: 100%;height: 30px;">
+				<font style="line-height: 30px;">获取 - 下注记录</font>
+			</div>
+			<div style="width: 100%;margin-top: 10px;">
+				<div id="instruction" style="width: 80px;float: left;">
+					<div style="width: 44px;height:44px;border-radius: 44px;background-color: #FF5722;margin: auto;">
+						<img src="images/monery.png" style="position: relative;left: 6px;top:6px;" />
+					</div>
+					<div style="width: 80px;height:30px;text-align: center;">
+						<font style="font-size: 12px;line-height: 30px;">支付指令</font>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div style="width: 96%;height:64px;margin: auto;margin-top: 50px;">
+			<div style="width: 100%;height: 30px;">
+				<font style="line-height: 30px;">获取 - 历史赛事</font>
+			</div>
+			<div style="width: 100%;margin-top: 10px;">
+				<div id="lstoday" style="width: 80px;float: left;">
+					<div style="width: 44px;height:44px;border-radius: 44px;background-color: #1E9FFF;margin: auto;">
+						<img src="images/lssj1.png" style="position: relative;left: 6px;top:6px;" />
+					</div>
+					<div style="width: 80px;height:30px;text-align: center;">
+						<font style="font-size: 12px;line-height: 30px;">历史赛事</font>
+					</div>
+				</div>
+			</div>
+			<div style="width: 100%;margin-top: 10px;">
+				<div id="report" style="width: 80px;float: left;">
+					<div style="width: 44px;height:44px;border-radius: 44px;background-color: #FF5722;margin: auto;">
+						<img src="images/monery.png" style="position: relative;left: 6px;top:6px;" />
+					</div>
+					<div style="width: 80px;height:30px;text-align: center;">
+						<font style="font-size: 12px;line-height: 30px;">红利报表</font>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div style="width: 96%;height:64px;margin: auto;margin-top: 50px;">
+			<div style="width: 100%;height: 30px;">
+				<font style="line-height: 30px;">保存 - 赛事信息</font>
+			</div>
+			<div style="width: 100%;margin-top: 10px;">
+				<div id="bcxztoday" style="width: 80px;float: left;">
+					<div style="width: 44px;height:44px;border-radius: 44px;background-color: #5FB878;margin: auto;">
+						<img src="images/ccgl.png" style="position: relative;left: 6px;top:6px;" />
+					</div>
+					<div style="width: 80px;height:30px;text-align: center;">
+						<font style="font-size: 12px;line-height: 30px;">今日赛事</font>
+					</div>
+				</div>
+				<div id="bcxztomorrow" style="width: 80px;float: left;">
+					<div style="width: 44px;height:44px;border-radius: 44px;background-color: #FFB800;margin: auto;">
+						<img src="images/ccgl.png" style="position: relative;left: 6px;top:6px;" />
+					</div>
+					<div style="width: 80px;height:30px;text-align: center;">
+						<font style="font-size: 12px;line-height: 30px;">明日赛事</font>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div style="width: 96%;height:64px;margin: auto;margin-top: 50px;">
+			<div style="width: 100%;height: 30px;">
+				<font style="line-height: 30px;">更新 - 结束赛事</font>
+			</div>
+			<div style="width: 100%;margin-top: 10px;">
+				<div id="xztoday" style="width: 80px;float: left;">
+					<div style="width: 44px;height:44px;border-radius: 44px;background-color: #5FB878;margin: auto;">
+						<img src="images/ccgl.png" style="position: relative;left: 6px;top:6px;" />
+					</div>
+					<div style="width: 80px;height:30px;text-align: center;">
+						<font style="font-size: 12px;line-height: 30px;">今日赛事</font>
+					</div>
+				</div>
+				<div id="xzyesterday" style="width: 80px;float: left;">
+					<div style="width: 44px;height:44px;border-radius: 44px;background-color: #FFB800;margin: auto;">
+						<img src="images/ccgl.png" style="position: relative;left: 6px;top:6px;" />
+					</div>
+					<div style="width: 80px;height:30px;text-align: center;">
+						<font style="font-size: 12px;line-height: 30px;">昨日赛事</font>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div style="width: 96%;height:64px;margin: auto;margin-top: 50px;">
+			<div style="width: 100%;height: 30px;">
+				<font style="line-height: 30px;">核算 - 竞猜结果</font>
+			</div>
+			<div style="width: 100%;margin-top: 10px;">
+				<div id="jstoday" style="width: 80px;float: left;">
+					<div style="width: 44px;height:44px;border-radius: 44px;background-color: #1E9FFF;margin: auto;">
+						<img src="images/mstk.png" style="position: relative;left: 6px;top:6px;" />
+					</div>
+					<div style="width: 80px;height:30px;text-align: center;">
+						<font style="font-size: 12px;line-height: 30px;">今日赛事</font>
+					</div>
+				</div>
+				<div id="jsyesterday" style="width: 80px;float: left;">
+					<div style="width: 44px;height:44px;border-radius: 44px;background-color: #FF5722;margin: auto;">
+						<img src="images/mstk.png" style="position: relative;left: 6px;top:6px;" />
+					</div>
+					<div style="width: 80px;height:30px;text-align: center;">
+						<font style="font-size: 12px;line-height: 30px;">昨日赛事</font>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+
+		<script src="js/mui.min.js"></script>
+		<script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.5.1.min.js"></script>
+		<script type="text/javascript" charset="utf-8">
+			$("#today").click(function() {
+				window.location.href = "html/today.html"
+			})
+			$("#tomorrow").click(function() {
+				window.location.href = "html/tomorrow.html"
+			})
+			$("#yesterday").click(function() {
+				window.location.href = "html/yesterday.html"
+			})
+			$("#bcxztoday").click(function() {
+				$.ajax({
+					url: "http://47.106.143.218:8081/event/today", //访问后台接口取数据
+					type: 'GET',
+					success: function(data) {
+						alert("保存当日赛事信息成功");
+					}
+				});
+			})
+			$("#bcxztomorrow").click(function() {
+				$.ajax({
+					url: "http://47.106.143.218:8081/event/tomorrow", //访问后台接口取数据
+					type: 'GET',
+					success: function(data) {
+						alert("保存明日赛事信息成功");
+					}
+				});
+			})
+			$("#xztoday").click(function() {
+				$.ajax({
+					url: "http://47.106.143.218:8081/event/today/end", //访问后台接口取数据
+					type: 'GET',
+					success: function(data) {
+						alert("获取比赛结束信息成功，请查看信息");
+					}
+				});
+			})
+			$("#xztomorrow").click(function() {
+				$.ajax({
+					url: "http://47.106.143.218:8081/event/tomorrow/end", //访问后台接口取数据
+					type: 'GET',
+					success: function(data) {
+						alert("获取比赛结束信息成功，请查看信息");
+					}
+				})
+			})	
+			$("#xzyesterday").click(function() {
+				$.ajax({
+					url: "http://47.106.143.218:8081/event/yesterday/end", //访问后台接口取数据
+					type: 'GET',
+					success: function(data) {
+						alert("获取比赛结束信息成功，请查看信息");
+					}
+				})
+			})
+			$("#jstoday").click(function() {
+				$.ajax({
+					url: "http://47.106.143.218:8081/event/today/quiz", //访问后台接口取数据
+					type: 'GET',
+					success: function(data) {
+						alert("核算单日赛事成功");
+					}
+				});
+			})
+			$("#jsyesterday").click(function() {
+				$.ajax({
+					url: "http://47.106.143.218:8081/event/yesterday/end/quiz", //访问后台接口取数据
+					type: 'GET',
+					success: function(data) {
+						alert("核算昨日赛事成功");
+					}
+				})
+			})
+			$("#lstoday").click(function() {
+				window.location.href = "html/history.html"
+			})
+			$("#report").click(function() {
+				window.location.href = "html/report.html"
+			})
+			$("#instruction").click(function() {
+				window.location.href = "html/instruction.html"
+			})
+		</script>
+		<script type="text/javascript" charset="utf-8">
+			mui.init({
+				swipeBack: true //启用右滑关闭功能
+			});
+			var slider = mui("#slider");
+			slider.slider({
+				interval: 5000
+			});
+		</script>
+	</body>
+
+</html>

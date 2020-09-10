@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+	<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>爆红APP - 报表数据</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+		<!--标准mui.css-->
+		<link rel="stylesheet" href="../css/mui.min.css">
+		<!--App自定义的css-->
+		<!--<link rel="stylesheet" type="text/css" href="css/app.css"/>-->
+	</head>
+
+	<body style="background-color: white;">
+		<div id="div">
+			<div style="width: 96%;margin: auto;">
+				<div style="width: 96%;margin: auto;margin-top: 10px;height:50px;">
+					<h3 id="title" style="line-height: 40px;color: red;"></h3>
+				</div>
+				<div style="width: 96%;margin: auto;height:20px;">
+					<div style="width: 50%;;height:30px;float: left;">
+						<font style="font-size: 16px;">总笔数：</font><font id="zbl" style="font-size: 26px;font-weight: bold;color:red;"></font>
+					</div>
+					<div style="width: 50%;;height:30px;float: left;">
+						<font style="font-size: 16px;">爆红率：</font><font id="bhl" style="font-size: 26px;font-weight: bold;color:red;">99 %</font>
+					</div>
+				</div>
+				<div style="width: 96%;margin: auto;height:20px;">
+					<div style="width: 50%;;height:20px;float: left;">
+						<font id="bhs" style="font-size: 16px;">爆红数：66</font>
+					</div>
+					<div style="width: 50%;;height:20px;float: left;">
+						<font id="bhel" style="font-size: 16px;">爆黑数：1</font>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.5.1.min.js"></script>
+	<script type="text/javascript" charset="utf-8">
+		$.ajax({
+			url: "http://47.106.143.218:8081/report/get/month", //访问后台接口取数据
+			type: 'GET',
+			success: function(data) {
+				console.log(data);
+				$("#title").html(data.data.year+"-"+data.data.month+" 爆红报表");
+				$("#zbl").html(data.data.allAmount+" 笔");
+				$("#bhl").html(data.data.redRatio);
+				$("#bhs").html("爆红数："+data.data.redAmount+" 笔");
+				$("#bhel").html("爆黑数："+data.data.blackAmount+" 笔");
+			}
+		});
+	</script>
+	<script type="text/javascript" src="../js/mui.js"></script>
+	<script type="text/javascript" charset="utf-8">
+		mui.oldback = mui.back;
+		mui.back = function(event) {
+			window.history.back(-1);
+		}
+	</script>
+
+	</html>

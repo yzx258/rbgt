@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+	<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>爆红APP - 今日下注数据</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+		<!--标准mui.css-->
+		<link rel="stylesheet" href="../css/mui.min.css">
+		<!--App自定义的css-->
+		<!--<link rel="stylesheet" type="text/css" href="css/app.css"/>-->
+	</head>
+
+	<style type="text/css">
+		table.gridtable {
+			font-family: verdana, arial, sans-serif;
+			font-size: 11px;
+			color: #333333;
+			border-width: 1px;
+			border-color: #666666;
+			border-collapse: collapse;
+			width: 100%;
+		}
+		
+		table.gridtable th {
+			border-width: 1px;
+			padding: 8px;
+			border-style: solid;
+			border-color: #666666;
+			background-color: #dedede;
+		}
+		
+		table.gridtable td {
+			border-width: 1px;
+			padding: 8px;
+			border-style: solid;
+			border-color: #666666;
+			background-color: #ffffff;
+			border:none;
+		}
+	</style>
+
+	<body style="background-color: white;">
+		<div id="div">
+			<table class="gridtable" id="table">
+
+			</table>
+		</div>
+	</body>
+	<script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.5.1.min.js"></script>
+	<script type="text/javascript" charset="utf-8">
+		$.ajax({
+			url: "http://47.106.143.218:8081/instruction/get/today", //访问后台接口取数据
+			type: 'GET',
+			success: function(data) {
+				console.log(data);
+				var tab, div, resultsDiv = "";
+				for(i = 0; i < data.data.length; i++) {
+					if('红' == data.data[i].betStatusName) {
+						resultsDiv = "<td>状态：<font style='font-size: 16px;font-weight: bold;color:red;'>红</font></td>";
+					} else if ('黑' == data.data[i].betStatusName) {
+						resultsDiv = "<td>状态：<font style='font-size: 16px;font-weight: bold;'>黑</font></td>";
+					} else if('已下注' == data.data[i].betStatusName){
+						resultsDiv = "<td>状态：<font style='font-size: 10px;font-weight: bold;color:#009688'>已下注</font></td>";
+					} else if('未下注' == data.data[i].betStatusName){
+						resultsDiv = "<td>状态：<font style='font-size: 10px;font-weight: bold;color:#009688'>未下注</font></td>";
+					}
+					tab = "<tr>" +
+						"<td colspan ='2'><font style='font-size: 16px;font-weight: bold;'>" + data.data[i].betHtn + " VS " + data.data[i].betAtn + "</font></td>" +
+						"</tr>" +
+						"<tr>" +
+						resultsDiv +
+						"<td>场次：" + data.data[i].betSession + " 场</td>" +
+						"</tr>" +
+						"<tr>"+
+						"<td colspan ='2'>时间："+data.data[i].list[0].betTime+"</td>" +
+						"</tr>";
+					console.log(data.data[i].list.length)
+					if(data.data[i].list.length == 1) {
+						var note1 = "";
+						if(null != data.data[i].list[0].note) {
+							note1 = "<tr><td colspan ='2'><font style='font-size: 10px;font-weight: bold;color:#009688'>备注：" + data.data[i].list[0].note + "</font></td></tr>";
+						}
+						div = "<tr><td colspan ='2'><font style='font-size: 10px;'>" + data.data[i].list[0].betSessionName + " [" + (data.data[i].list[0].betSingleOrDouble == 1 ? '单' : '双') + "]</font></td>" +
+							"</tr>" +
+							"<tr>" +
+							"<td><font style='font-size: 10px;'>金额：" + data.data[i].list[0].betAmount + "</font></td>" +
+							"<td>状态：<font style='font-size: 10px;'>" + data.data[i].list[0].instructionId + "</font></td>" +
+							"</tr>" +
+							note1;
+					} else if(data.data[i].list.length == 2) {
+						var note1, note2 = "";
+						if(null != data.data[i].list[0].note) {
+							note1 = "<tr><td colspan ='2'><font style='font-size: 10px;font-weight: bold;color:#009688'>备注：" + data.data[i].list[0].note + "</font></td></tr>";
+						}
+						if(null != data.data[i].list[1].note) {
+							note2 = "<tr><td colspan ='2'><font style='font-size: 10px;font-weight: bold;color:#009688'>备注：" + data.data[i].list[1].note + "</font></td></tr>";
+						}
+						div = "<tr><td colspan ='32'><font style='font-size: 10px;'>" + data.data[i].list[0].betSessionName + " [" + (data.data[i].list[0].betSingleOrDouble == 1 ? '单' : '双') + "]</font></td>" +
+							"</tr>" +
+							"<tr>" +
+							"<td><font style='font-size: 10px;'>金额：" + data.data[i].list[0].betAmount + "</font></td>" +
+							"<td>状态：<font style='font-size: 10px;'>" + data.data[i].list[0].instructionId + "</font></td>" +
+							"</tr>" +
+							note1 +
+							"<tr><td colspan ='2'><font style='font-size: 10px;'>" + data.data[i].list[1].betSessionName + " [" + (data.data[i].list[1].betSingleOrDouble == 1 ? '单' : '双') + "]</font></td>" +
+							"</tr>" +
+							"<tr>" +
+							"<td><font style='font-size: 10px;'>金额：" + data.data[i].list[1].betAmount + "</font></td>" +
+							"<td>状态：<font style='font-size: 10px;'>" + (data.data[i].list[1].betStatus == 3 ? '红' : '黑') + "</font></td>" +
+							"</tr>" +
+							note2;
+
+					} else if(data.data[i].list.length == 3) {
+						var note1, note2, note3 = "";
+						if(null != data.data[i].list[0].note) {
+							note1 = "<tr><td colspan ='2'><font style='font-size: 10px;font-weight: bold;color:#009688'>备注：" + data.data[i].list[0].note + "</font></td></tr>";
+						}
+						if(null != data.data[i].list[1].note) {
+							note2 = "<tr><td colspan ='2'><font style='font-size: 10px;font-weight: bold;color:#009688'>备注：" + data.data[i].list[1].note + "</font></td></tr>";
+						}
+						if(null != data.data[i].list[2].note) {
+							note3 = "<tr><td colspan ='2'><font style='font-size: 10px;font-weight: bold;color:#009688'>备注：" + data.data[i].list[2].note + "</font></td></tr>";
+						}
+						div = "<tr><td colspan ='2'><font style='font-size: 10px;'>" + data.data[i].list[0].betSessionName + " [" + (data.data[i].list[0].betSingleOrDouble == 1 ? '单' : '双') + "]</font></td>" +
+							"</tr>" +
+							"<tr>" +
+							"<td><font style='font-size: 10px;'>金额：" + data.data[i].list[0].betAmount + "</font></td>" +
+							"<td>状态：<font style='font-size: 10px;'>" + data.data[i].list[0].instructionId + "</font></td>" +
+							"</tr>" +
+							note1 +
+							"<tr><td colspan ='2'><font style='font-size: 10px;'>" + data.data[i].list[1].betSessionName + " [" + (data.data[i].list[1].betSingleOrDouble == 1 ? '单' : '双') + "]</font></td>" +
+							"</tr>" +
+							"<tr>" +
+							"<td><font style='font-size: 10px;'>金额：" + data.data[i].list[1].betAmount + "</font></td>" +
+							"<td>状态：<font style='font-size: 10px;'>" + (data.data[i].list[1].betStatus == 3 ? '红' : '黑') + "</font></td>" +
+							"</tr>" +
+							note2 +
+							"<tr>" +
+							"<tr><td colspan ='2'><font style='font-size: 10px;'>" + data.data[i].list[2].betSessionName + " [" + (data.data[i].list[2].betSingleOrDouble == 1 ? '单' : '双') + "]</font></td>" +
+							"</tr>" +
+							"<tr>" +
+							"<td><font style='font-size: 10px;'>金额：" + data.data[i].list[2].betAmount + "</font></td>" +
+							"<td>状态：<font style='font-size: 10px;'>" + (data.data[i].list[2].betStatus == 3 ? '红' : '黑') + "</font></td>" +
+							"</tr>" +
+							note3;
+
+					} else if(data.data[i].list.length == 4) {
+						var note1, note2, note3, note4 = "";
+						if(null != data.data[i].list[0].note) {
+							note1 = "<tr><td colspan ='2'><font style='font-size: 10px;font-weight: bold;color:#009688'>备注：" + data.data[i].list[0].note + "</font></td></tr>";
+						}
+						if(null != data.data[i].list[1].note) {
+							note2 = "<tr><td colspan ='2'><font style='font-size: 10px;font-weight: bold;color:#009688'>备注：" + data.data[i].list[1].note + "</font></td></tr>";
+						}
+						if(null != data.data[i].list[2].note) {
+							note3 = "<tr><td colspan ='2'><font style='font-size: 10px;font-weight: bold;color:#009688'>备注：" + data.data[i].list[2].note + "</font></td></tr>";
+						}
+						if(null != data.data[i].list[3].note) {
+							note4 = "<tr><td colspan ='2'><font style='font-size: 10px;font-weight: bold;color:#009688'>备注：" + data.data[i].list[3].note + "</font></td></tr>";
+						}
+						div = "<tr><td colspan ='2'><font style='font-size: 10px;'>" + data.data[i].list[0].betSessionName + " [" + (data.data[i].list[0].betSingleOrDouble == 1 ? '单' : '双') + "]</font></td>" +
+							"</tr>" +
+							"<tr>" +
+							"<td><font style='font-size: 10px;'>金额：" + data.data[i].list[0].betAmount + "</font></td>" +
+							"<td>状态：<font style='font-size: 10px;'>" + data.data[i].list[0].instructionId + "</font></td>" +
+							"</tr>" +
+							note1 +
+							"<tr><td colspan ='2'><font style='font-size: 10px;'>" + data.data[i].list[1].betSessionName + " [" + (data.data[i].list[1].betSingleOrDouble == 1 ? '单' : '双') + "]</font></td>" +
+							"</tr>" +
+							"<tr>" +
+							"<td><font style='font-size: 10px;'>金额：" + data.data[i].list[1].betAmount + "</font></td>" +
+							"<td>状态：<font style='font-size: 10px;'>" + (data.data[i].list[1].betStatus == 3 ? '红' : '黑') + "</font></td>" +
+							"</tr>" +
+							note2 +
+							"<tr><td colspan ='2'><font style='font-size: 10px;'>" + data.data[i].list[2].betSessionName + " [" + (data.data[i].list[2].betSingleOrDouble == 1 ? '单' : '双') + "]</font></td>" +
+							"</tr>" +
+							"<tr>" +
+							"<td><font style='font-size: 10px;'>金额：" + data.data[i].list[2].betAmount + "</font></td>" +
+							"<td>状态：<font style='font-size: 10px;'>" + (data.data[i].list[2].betStatus == 3 ? '红' : '黑') + "</font></td>" +
+							"</tr>" +
+							note3 +
+							"<tr><td colspan ='2'><font style='font-size: 10px;'>" + data.data[i].list[3].betSessionName + " [" + (data.data[i].list[3].betSingleOrDouble == 1 ? '单' : '双') + "]</font></td>" +
+							"</tr>" +
+							"<tr>" +
+							"<td><font style='font-size: 10px;'>金额：" + data.data[i].list[3].betAmount + "</font></td>" +
+							"<td>状态：<font style='font-size: 10px;'>" + (data.data[i].list[3].betStatus == 3 ? '红' : '黑') + "</font></td>" +
+							"</tr>" +
+							note4;
+					}
+
+					$("#table").append(tab + div);
+				}
+			}
+		});
+	</script>
+	<script type="text/javascript" src="../js/mui.js"></script>
+	<script type="text/javascript" charset="utf-8">
+		mui.oldback = mui.back;
+		mui.back = function(event) {
+			window.history.back(-1);
+		}
+	</script>
+
+	</html>
