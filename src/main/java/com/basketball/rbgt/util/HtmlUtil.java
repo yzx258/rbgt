@@ -1,14 +1,14 @@
 package com.basketball.rbgt.util;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.basketball.rbgt.mapper.EventMapper;
 import com.basketball.rbgt.mapper.InstructionMapper;
 import com.basketball.rbgt.mapper.RatioMapper;
+import com.basketball.rbgt.mapper.NrMapper;
 import com.basketball.rbgt.pojo.Event;
 import com.basketball.rbgt.pojo.Instruction;
-import com.basketball.rbgt.pojo.Ratio;
+import com.basketball.rbgt.pojo.Nr;
 import com.basketball.rbgt.service.InstructionService;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
@@ -45,6 +45,8 @@ public class HtmlUtil {
     private InstructionService instructionService;
     @Autowired
     private InstructionMapper instructionMapper;
+    @Autowired
+    private NrMapper nrMapper;
 
     /**
      * 描述：比赛队伍名过滤条件
@@ -278,10 +280,15 @@ public class HtmlUtil {
      * @param name
      * @return
      */
-    private static String replace(String name) {
-        String nameReplace = name.replace("休斯顿火箭", "休斯敦火箭")
-                .replace("康涅狄克太阳", "康乃狄阳光");
-        return nameReplace;
+    public String replace(String name) {
+        List<Nr> nrs = nrMapper.selectList(null);
+        nrs.stream().forEach(r -> {
+            if(r.getName().equals(name)){
+                name.replace(r.getName(), r.getTarget());
+                log.info("我是转换的数据 -> {},{}",r.getName(),name);
+            }
+        });
+        return name;
     }
 
     /**
