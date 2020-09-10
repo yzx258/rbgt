@@ -360,6 +360,36 @@ public class InstructionServiceImpl implements InstructionService {
         return new ArrayList<>();
     }
 
+    @Override
+    public List<Instruction> getByStatusMore() {
+        QueryWrapper<Instruction> qw = new QueryWrapper<Instruction>();
+        qw.eq("bet_time", DateUtil.getDate(0)).eq("bet_status", 1);
+        List<Instruction> is = instructionMapper.selectList(qw);
+        // 不为空时判断
+        if (!CollectionUtil.isEmpty(is)) {
+            List<Instruction> list = new ArrayList<>();
+            is.stream().forEach(i-> {
+                String fc = fifoCache.get(i.getId());
+                System.out.println("我是查询出来的缓存：" + fc);
+                if (StrUtil.isNotBlank(fc) && Integer.parseInt(fc) == 6) {
+                    Instruction instruction = i;
+                    instruction.setBetStatus(4);
+                    instruction.setNote("下注次数，超过六次，停止下注");
+                    instructionMapper.updateById(instruction);
+                    fifoCache.remove(is.get(0).getId());
+                    DingUtil d = new DingUtil();
+                    d.sendMassage("["+instruction.getBetHtn()+" VS "+instruction.getBetAtn()+"] 下注次数，超过六次，停止下注");
+                } else {
+                    fc = fc == null ? "0" : fc;
+                    fifoCache.put(i.getId(), (Integer.parseInt(fc)+1)+"");
+                    list.add(i);
+                }
+            });
+            return list;
+        }
+        return new ArrayList<>();
+    }
+
     /**
      * 更新下注失败赛事
      *

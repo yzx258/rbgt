@@ -47,6 +47,12 @@ public interface InstructionService {
      * 根据状态和时间获取下注指令
      * @return
      */
+    List<Instruction> getByStatusMore();
+
+    /**
+     * 根据状态和时间获取下注指令
+     * @return
+     */
     List<InstructionDTO> getToday();
 
     /**

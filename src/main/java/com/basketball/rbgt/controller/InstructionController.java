@@ -30,10 +30,16 @@ public class InstructionController {
     @Autowired
     private InstructionService instructionService;
 
-    @ApiOperation(value = "查询 - 获取待下注指令")
+    @ApiOperation(value = "查询 - 获取单个待下注指令")
     @GetMapping("/get")
     public Response<List<Instruction>> get(){
         return new Response(instructionService.getByStatus());
+    }
+
+    @ApiOperation(value = "查询 - 获取多个待下注指令")
+    @GetMapping("/get/more")
+    public Response<List<Instruction>> getMore(){
+        return new Response(instructionService.getByStatusMore());
     }
 
     @ApiOperation(value = "查询 - 获取待下注指令")
