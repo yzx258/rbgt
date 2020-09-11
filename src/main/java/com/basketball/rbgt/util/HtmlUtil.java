@@ -100,7 +100,7 @@ public class HtmlUtil {
         // 解析出来的数据对象
         List<Event> event = getBetEvent(htmlPage, ctime);
         // 过滤数据【只包含：CBA和NBA赛事】
-        List<Event> collect = event.stream().filter(e -> (e.getType() == 1 || e.getType() == 2 || e.getType() == 3 || e.getType() == 6 || e.getType() == 7)).collect(Collectors.toList());
+        List<Event> collect = event.stream().filter(e -> (e.getType() == 1 || e.getType() == 2 || e.getType() == 3 || e.getType() == 6 || e.getType() == 7 || e.getType() == 8)).collect(Collectors.toList());
         // 判断每节是否红单
         for (Event e : collect) {
             QueryWrapper<Event> queryWrapper = new QueryWrapper<Event>();
@@ -833,8 +833,10 @@ public class HtmlUtil {
             return 6;
         } else if("波篮甲".contains(typeName)){
             return 7;
-        }else{
+        }else if("意篮杯".contains(typeName)){
             return 8;
+        }else{
+            return 100;
         }
     }
 }
