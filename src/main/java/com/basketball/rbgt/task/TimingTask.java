@@ -74,9 +74,9 @@ public class TimingTask {
     }
 
     /**
-     * 每天23小时获取历史报表，并入库
+     * 每1分钟获取比赛竞猜结果，并入库
      */
-    @Scheduled(cron = "0 0/1 * * * ? ")
+    @Scheduled(cron = "0/30 * * * * ? ")
     private void addBet() {
         System.out.println("添加下注指令 - 异步线程开始");
         System.out.println("每1分钟获取比赛竞猜结果，并入库");
