@@ -39,4 +39,9 @@ public class Nr implements Serializable {
      */
     private String target;
 
+    /**
+     * 类型名称
+     */
+    private String type;
+
 }

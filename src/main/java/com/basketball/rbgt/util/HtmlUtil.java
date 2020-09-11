@@ -282,12 +282,12 @@ public class HtmlUtil {
      */
     public String replace(String name) {
         List<Nr> nrs = nrMapper.selectList(null);
-        nrs.stream().forEach(r -> {
-            if(r.getName().equals(name)){
-                name.replace(r.getName(), r.getTarget());
-                log.info("我是转换的数据 -> {},{}",r.getName(),name);
+        for(Nr nr : nrs){
+            if(name.contains(nr.getName())){
+                name = name.replace(nr.getName(), nr.getTarget());
+                log.info("我是转换的数据 -> {},{}",nr.getName(),name);
             }
-        });
+        }
         return name;
     }
 

@@ -36,12 +36,12 @@ public class ReplaceCuntroller {
     public String test(){
         String name = "休斯顿火箭";
         List<Nr> nrs = nrMapper.selectList(null);
-        nrs.stream().forEach(r -> {
-            if(r.getName().equals(name)){
-                name.replace(r.getName(), r.getTarget());
-                log.info("我是转换的数据 -> {},{}",r.getName(),name);
+        for(Nr nr : nrs){
+            if(nr.getName().equals(name)){
+                name = name.replace(nr.getName(), nr.getTarget());
+                log.info("我是转换的数据 -> {},{}",nr.getName(),name);
             }
-        });
+        }
         return name;
     }
 
