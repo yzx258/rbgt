@@ -79,6 +79,30 @@
 						<font style="font-size: 12px;line-height: 30px;">支付指令</font>
 					</div>
 				</div>
+				<div id="nr" style="width: 80px;float: left;">
+					<div style="width: 44px;height:44px;border-radius: 44px;background-color: #009688;margin: auto;">
+						<img src="images/ssth.png" style="position: relative;left: 6px;top:6px;" />
+					</div>
+					<div style="width: 80px;height:30px;text-align: center;">
+						<font style="font-size: 12px;line-height: 30px;">替换赛事</font>
+					</div>
+				</div>
+				<div id="gbxz" style="width: 80px;float: left;">
+					<div id="gbxz_div" style="width: 44px;height:44px;border-radius: 44px;background-color: #FF5722;margin: auto;">
+						<img src="images/sw.png" style="position: relative;left: 6px;top:6px;" />
+					</div>
+					<div style="width: 80px;height:30px;text-align: center;">
+						<font style="font-size: 12px;line-height: 30px;">关闭下注</font>
+					</div>
+				</div>
+				<div id="kqxz" style="width: 80px;float: left;">
+					<div id="kqxz_div" style="width: 44px;height:44px;border-radius: 44px;background-color: #FF5722;margin: auto;">
+						<img src="images/sw.png" style="position: relative;left: 6px;top:6px;" />
+					</div>
+					<div style="width: 80px;height:30px;text-align: center;">
+						<font style="font-size: 12px;line-height: 30px;">开启下注</font>
+					</div>
+				</div>
 			</div>
 		</div>
 		<div style="width: 96%;height:64px;margin: auto;margin-top: 50px;">
@@ -180,6 +204,7 @@
 		<script src="js/mui.min.js"></script>
 		<script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.5.1.min.js"></script>
 		<script type="text/javascript" charset="utf-8">
+			var sw = 1;
 			$("#today").click(function() {
 				window.location.href = "html/today.html"
 			})
@@ -261,6 +286,70 @@
 			$("#instruction").click(function() {
 				window.location.href = "html/instruction.html"
 			})
+			$("#nr").click(function() {
+				window.location.href = "html/nr.html"
+			})
+			// 关闭下注
+			$("#gbxz").click(function() {
+				console.log(sw)
+				if(sw == 2){
+					return;
+				}
+				$.ajax({
+					url: "http://47.106.143.218:8081/instruction/switch/off", //访问后台接口取数据
+					type: 'GET',
+					async:false,  //使用同步的方式,true为异步方式
+					success: function(data) {
+						console.log(data)
+						if(data.code == 200){
+							alert("航行者，【已关闭】下注权限，请注意")
+							$("#kqxz_div").css("background-color","#FF5722")
+							$("#gbxz_div").css("background-color","#c2c2c2")
+						}
+						sw = 2
+					}
+				})
+			})
+			// 开启下注
+			$("#kqxz").click(function() {
+				console.log(sw)
+				if(sw == 1){
+					return;
+				}
+				$.ajax({
+					url: "http://47.106.143.218:8081/instruction/switch/on", //访问后台接口取数据
+					type: 'GET',
+					async:false,  //使用同步的方式,true为异步方式
+					success: function(data) {
+						console.log(data)
+						if(data.code == 200){
+							alert("航行者，【已开启】下注权限，请注意")
+							$("#kqxz_div").css("background-color","#c2c2c2")
+							$("#gbxz_div").css("background-color","#FF5722")
+						}
+						sw = 1
+					}
+				})
+			})
+			// 获取下注状态
+			$.ajax({
+					url: "http://localhost:8081/instruction/get/switch", //访问后台接口取数据
+					type: 'GET',
+					async:false,  //使用同步的方式,true为异步方式
+					success: function(data) {
+						console.log(data)
+						if(data.data == "ON"){
+							$("#kqxz_div").css("background-color","#c2c2c2")
+							$("#gbxz_div").css("background-color","#FF5722")
+							sw = 1
+						}else{
+							$("#kqxz_div").css("background-color","#FF5722")
+							$("#gbxz_div").css("background-color","#c2c2c2")
+							sw = 2
+						}
+					}
+				})
+			console.log(sw)
 		</script>
 		<script type="text/javascript" charset="utf-8">
 			mui.init({
