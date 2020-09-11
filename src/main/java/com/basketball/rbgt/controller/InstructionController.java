@@ -62,5 +62,25 @@ public class InstructionController {
         return new Response();
     }
 
+    @ApiOperation(value = "更新 - 开启下注")
+    @GetMapping("/switch/on")
+    public Response switchOn(){
+        instructionService.switchOn();
+        return new Response();
+    }
+
+    @ApiOperation(value = "更新 - 关闭下注")
+    @GetMapping("/switch/off")
+    public Response switchOff(){
+        instructionService.switchOff();
+        return new Response();
+    }
+
+    @ApiOperation(value = "查询 - 获取下注状态")
+    @GetMapping("/get/switch")
+    public Response<String> getSwitch(){
+        return new Response<>(instructionService.getSwitchOff());
+    }
+
 }
 

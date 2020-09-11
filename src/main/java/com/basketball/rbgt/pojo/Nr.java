@@ -27,7 +27,7 @@ public class Nr implements Serializable {
      * 唯一标识
      */
     @TableId(value = "id", type = IdType.ID_WORKER)
-    private Long id;
+    private String id;
 
     /**
      * 源名称
@@ -43,5 +43,10 @@ public class Nr implements Serializable {
      * 类型名称
      */
     private String type;
+
+    /**
+     * 类型名称
+     */
+    private String time;
 
 }

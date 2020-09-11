@@ -66,4 +66,19 @@ public interface InstructionService {
      * @param instructionId
      */
     void updateBetSuccess(String instructionId);
+
+    /**
+     * 开启下注
+     */
+    void switchOn();
+
+    /**
+     * 关闭下注
+     */
+    void switchOff();
+
+    /**
+     * 查看下注状态
+     */
+    String getSwitchOff();
 }

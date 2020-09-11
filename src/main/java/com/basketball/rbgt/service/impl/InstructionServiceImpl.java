@@ -38,6 +38,9 @@ public class InstructionServiceImpl implements InstructionService {
     private InstructionMapper instructionMapper;
     @Autowired
     private RatioMapper ratioMapper;
+    private static final String cache_key = "SW_SUCCESS";
+    private static final String cache_key_on = "ON";
+    private static final String cache_key_off = "OFF";
     private static Cache<String, String> fifoCache = CacheUtil.newFIFOCache(10);
 
 
@@ -334,6 +337,10 @@ public class InstructionServiceImpl implements InstructionService {
      */
     @Override
     public List<Instruction> getByStatus() {
+        if(null != fifoCache.get(cache_key) && cache_key_off.equals(fifoCache.get(cache_key))){
+            log.info("航行者，已关闭下注权限，请注意！！");
+            return new ArrayList<>();
+        }
         QueryWrapper<Instruction> qw = new QueryWrapper<Instruction>();
         qw.eq("bet_time", DateUtil.getDate(0)).eq("bet_status", 1);
         List<Instruction> is = instructionMapper.selectList(qw);
@@ -422,6 +429,28 @@ public class InstructionServiceImpl implements InstructionService {
             // 更新支付指令为已购买
             instructionMapper.updateById(instruction);
         }
+    }
+
+    @Override
+    public void switchOn() {
+        fifoCache.put(cache_key,cache_key_on);
+        DingUtil d = new DingUtil();
+        d.shopkeeperMassage("航行者，【已开启】下注权限，请注意！！");
+    }
+
+    @Override
+    public void switchOff() {
+        fifoCache.put(cache_key,cache_key_off);
+        DingUtil d = new DingUtil();
+        d.shopkeeperMassage("航行者，【已关闭】下注权限，请注意！！");
+    }
+
+    @Override
+    public String getSwitchOff() {
+        if(null == fifoCache.get(cache_key)){
+            return cache_key_on;
+        }
+        return fifoCache.get(cache_key);
     }
 
     @Override
