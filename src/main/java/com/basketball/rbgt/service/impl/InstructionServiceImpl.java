@@ -350,7 +350,7 @@ public class InstructionServiceImpl implements InstructionService {
             System.out.println("我是查询出来的缓存：" + fc);
             if (StrUtil.isNotBlank(fc) && Integer.parseInt(fc) == 6) {
                 Instruction instruction = is.get(0);
-                instruction.setBetStatus(2);
+                instruction.setBetStatus(4);
                 instruction.setNote("下注次数，超过六次，停止下注");
                 instructionMapper.updateById(instruction);
                 fifoCache.remove(is.get(0).getId());
