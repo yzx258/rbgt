@@ -43,4 +43,14 @@ public class BuyRecordServiceImpl implements BuyRecordService {
         qw.eq("type",type);
         return mapper.selectList(qw);
     }
+
+    @Override
+    public void del(String type) {
+        List<BuyRecord> buyRecords = this.get(type);
+        if(buyRecords.size() > 0){
+            BuyRecord buyRecord = buyRecords.get(0);
+            buyRecord.setType(0);
+            mapper.updateById(buyRecord);
+        }
+    }
 }

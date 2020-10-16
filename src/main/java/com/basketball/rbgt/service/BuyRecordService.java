@@ -24,4 +24,10 @@ public interface BuyRecordService {
      */
     List<BuyRecord> get(String type);
 
+    /**
+     * 描述 ： 新增下注记录
+     * @param type
+     */
+    void del(String type);
+
 }
