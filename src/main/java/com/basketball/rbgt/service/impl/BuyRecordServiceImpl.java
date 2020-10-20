@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -34,6 +35,7 @@ public class BuyRecordServiceImpl implements BuyRecordService {
         br.setJson(spec.getJson());
         br.setType(spec.getType());
         br.setTime(DateUtil.getDate(0));
+        br.setCreateTime(new Date());
         mapper.insert(br);
     }
 

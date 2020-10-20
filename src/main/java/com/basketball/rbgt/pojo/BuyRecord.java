@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @company： 厦门宜车时代信息技术有限公司
@@ -28,6 +29,11 @@ public class BuyRecord implements Serializable {
      */
     @TableId(value = "id", type = IdType.ASSIGN_UUID)
     private String id;
+
+    /**
+     * 创建时间
+     */
+    private Date createTime;
 
     /**
      * 下注字符串记录
